@@ -22,13 +22,19 @@ def listar_consultas():
 
     try:
         _, clinica_id = get_user_clinica(token)
-        result = (
-            supabase.table("consultas")
-            .select("*, pacientes(nome, telefone_whatsapp), usuarios(nome)")
+
+        query = (
+            supabase.table("atendimentos")
+            .select("*, pacientes(nome), dentista:usuarios(nome)")
             .eq("clinica_id", clinica_id)
-            .order("data_hora")
-            .execute()
+            .order("data_agendada")
         )
+
+        paciente_id = request.args.get("paciente_id")
+        if paciente_id:
+            query = query.eq("paciente_id", paciente_id)
+
+        result = query.execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -44,16 +50,20 @@ def agendar_consulta():
         _, clinica_id = get_user_clinica(token)
         data = request.get_json()
 
-        nova = {
+        novo_atendimento = {
             "clinica_id": clinica_id,
             "paciente_id": data.get("paciente_id"),
-            "especialista_id": data.get("especialista_id"),
-            "data_hora": data.get("data_hora"),
-            "observacoes": data.get("observacoes"),
-            "status": "agendada",
+            "dentista_id": data.get("dentista_id"),
+            "data_agendada": data.get("data_agendada"),
+            "procedimentos_descritos": data.get("procedimentos_descritos"),
+            "tipo_atendimento": data.get("tipo_atendimento"),
+            "status": data.get("status", "Agendado"),
         }
 
-        result = supabase.table("consultas").insert(nova).execute()
+        # Remove keys with None value to let the DB use its defaults
+        novo_atendimento = {k: v for k, v in novo_atendimento.items() if v is not None}
+
+        result = supabase.table("atendimentos").insert(novo_atendimento).execute()
         return jsonify(result.data[0]), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -69,9 +79,28 @@ def atualizar_consulta(consulta_id):
         _, clinica_id = get_user_clinica(token)
         data = request.get_json()
 
+        CAMPOS_PERMITIDOS = {"evolucao_clinica", "status", "procedimentos_descritos", "tipo_atendimento"}
+        payload = {k: v for k, v in data.items() if k in CAMPOS_PERMITIDOS}
+
+        if not payload:
+            return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
+
+        # Verifica se o atendimento pertence à clínica antes de atualizar
+        check = (
+            supabase.table("atendimentos")
+            .select("id")
+            .eq("id", consulta_id)
+            .eq("clinica_id", clinica_id)
+            .single()
+            .execute()
+        )
+
+        if not check.data:
+            return jsonify({"error": "Atendimento não encontrado"}), 404
+
         result = (
-            supabase.table("consultas")
-            .update(data)
+            supabase.table("atendimentos")
+            .update(payload)
             .eq("id", consulta_id)
             .eq("clinica_id", clinica_id)
             .execute()
@@ -89,7 +118,7 @@ def cancelar_consulta(consulta_id):
 
     try:
         _, clinica_id = get_user_clinica(token)
-        supabase.table("consultas").update({"status": "cancelada"}).eq("id", consulta_id).eq("clinica_id", clinica_id).execute()
+        supabase.table("atendimentos").update({"status": "Cancelado"}).eq("id", consulta_id).eq("clinica_id", clinica_id).execute()
         return jsonify({"message": "Consulta cancelada"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

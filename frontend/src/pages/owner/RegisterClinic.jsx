@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { apiCreateClinic } from "../../services/api";
 import Section from "../../components/section/SectionAuth"
 import SideBar from "../../components/bar/SideBar"
-import IMG from "../../assets/img/icon01.png"
+import { useOwnerSidebar } from "../../hooks/useSidebar";
 import '../../styles/clinic.css';
 import '../../styles/Forms.css';
 
@@ -31,15 +31,7 @@ function RegisterClinic() {
     const [cidade, setCidade] = useState("");
     const [esdereco, setEndereco] = useState("");
 
-    const opc_bar = [
-        {
-            id: 1,
-            icon: IMG,
-            name: "Clínica",
-            url: "/owner/clinic/register",
-            style: "select"
-        }
-    ];
+    const opc_bar = useOwnerSidebar("clinic");
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -48,9 +40,15 @@ function RegisterClinic() {
 
         const newClinic = {
             nome: name_clinic,
+            nome_fantasia: name_clinic,
             cnpj: CNPJ,
             telefone: telefone,
-            endereco: `${esdereco}, ${cidade} - ${estado}, ${pais}`
+            endereco: {
+                logradouro: esdereco,
+                cidade: cidade,
+                estado: estado,
+                pais: pais,
+            },
         };
 
         try {

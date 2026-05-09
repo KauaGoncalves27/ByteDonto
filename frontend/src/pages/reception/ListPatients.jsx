@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { apiGetPacientes } from "../../services/api";
+import { formatCPF, formatPhone } from "../../utils/formatters";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
-import IMG from "../../assets/img/icon01.png";
+import { useReceptionSidebar } from "../../hooks/useSidebar";
 import '../../styles/clinic.css';
 
 /* MAIN COMPONENT */
@@ -14,25 +16,15 @@ function ListPatients() {
     const [loading, setLoading] = useState(true);
 
     // Menu da recepção
-    const opc_bar = [
-        { id: 1, icon: IMG, name: "Painel Principal", url: "/reception/dashboard", style: "" },
-        { id: 3, icon: IMG, name: "Pacientes", url: "/reception/patients", style: "select" }
-    ];
+    const opc_bar = useReceptionSidebar("patients");
 
     useEffect(() => {
         const fetchPacientes = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:8000/api/pacientes/", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setPacientes(data);
-                } else {
-                    console.error("Falha ao carregar pacientes");
-                }
+                const data = await apiGetPacientes(token);
+                setPacientes(data);
             } catch (error) {
-                console.error("Erro no fetch", error);
+                console.error("Erro ao carregar pacientes", error);
             } finally {
                 setLoading(false);
             }
@@ -96,8 +88,8 @@ function ListPatients() {
                             ) : (
                                 pacientesFiltrados.map((p, idx) => (
                                     <div key={p.id} className="table-row" style={{gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', borderBottom: idx === pacientesFiltrados.length - 1 ? 'none' : '1px solid var(--LineColor)'}}>
-                                        <div><p style={{fontWeight: 700}}>{p.nome}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{p.cpf || "Sem CPF"}</span></div>
-                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{p.telefone_whatsapp || "-"}</p>
+                                        <div><p style={{fontWeight: 700}}>{p.nome}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{formatCPF(p.cpf)}</span></div>
+                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.telefone_whatsapp)}</p>
                                         <p>-</p>
                                         <p style={{color: p.status === 'Ativo' ? '#22C55E' : 'var(--TextColor75)', fontWeight: 700}}>{p.status || "Ativo"}</p>
                                         <div style={{textAlign: 'right'}}><Link to={`/reception/patient/view?id=${p.id}`} className="submit" style={{padding: '6px 16px', fontSize: '13px', background: 'var(--LineColor)', color: 'var(--TextColor)', boxShadow: 'none', display: 'inline-block'}}>Ver Ficha</Link></div>

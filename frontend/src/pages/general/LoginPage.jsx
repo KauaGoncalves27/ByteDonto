@@ -27,12 +27,13 @@ function LoginPage() {
             } else if (role === "Especialista") {
                 navigate("/specialist/dashboard");
             } else {
-                // "Dono" ou padrão
-                navigate("/owner/clinic");
+                // "Dono" — redireciona para onboarding se ainda não tem clínica
+                const semClinica = !userData.perfil.clinica_id;
+                navigate(semClinica ? "/owner/onboarding" : "/owner/clinic");
             }
         } else {
             // Conta nova ou sem papel definido
-            navigate("/owner/clinic");
+            navigate("/owner/onboarding");
         }
     };
 

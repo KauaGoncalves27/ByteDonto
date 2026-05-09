@@ -1,10 +1,12 @@
 /* IMPORTS */
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { apiRegistro } from "../../services/api";
 import '../../styles/Auth.css';
 
 /* MAIN COMPONENT */
 function CadastroPage() {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         nome: "",
         email: "",
@@ -31,10 +33,9 @@ function CadastroPage() {
 
         setLoading(true);
         try {
-            /* Por enquanto exibe mensagem — o endpoint de cadastro
-               será criado quando o líder do projeto configurar o deploy.
-               O fluxo completo de cadastro requer criação de clínica + usuário. */
-            setSuccess("Cadastro recebido! Aguarde o administrador ativar sua conta.");
+            await apiRegistro(form.nome, form.email, form.password);
+            setSuccess("Conta criada com sucesso! Redirecionando para o login...");
+            setTimeout(() => navigate("/login"), 2000);
         } catch (err) {
             setError(err.message || "Erro ao cadastrar.");
         } finally {

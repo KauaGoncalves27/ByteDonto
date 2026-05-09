@@ -87,3 +87,50 @@ span { font-size: var(--SpanText); font-weight: 700; }
 p, a { font-size: var(--PText); font-weight: 400; margin: 0; line-height: 1.6; }
 
 .text75 { color: var(--TextColor75); }
+
+/* TAB BAR */
+ul.tabs-bar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--LineColor);
+}
+
+ul.tabs-bar li {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--TextColor75);
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: color 0.15s, background 0.15s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+}
+
+ul.tabs-bar li:hover {
+    color: var(--PrimaryColorsTheme);
+    background: var(--PrimaryColorsBack);
+}
+
+ul.tabs-bar li.select {
+    color: var(--PrimaryColorsTheme);
+    border-bottom-color: var(--PrimaryColorsTheme);
+    background: var(--PrimaryColorsBack);
+}
+
+/* STANDALONE FORMS SECTION (used outside <form> tags) */
+.forms-section {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--LineColor);
+    padding: 2rem;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

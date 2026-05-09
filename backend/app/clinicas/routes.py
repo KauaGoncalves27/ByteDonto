@@ -29,6 +29,29 @@ def criar_clinica():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@clinicas_bp.route("/", methods=["GET"])
+def listar_clinicas():
+    """Retorna a clínica do usuário autenticado."""
+    token = get_token(request)
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
+
+    try:
+        user_response = supabase.auth.get_user(token)
+        user_id = user_response.user.id
+
+        perfil = supabase.table("usuarios").select("clinica_id").eq("id", user_id).single().execute()
+        clinica_id = perfil.data.get("clinica_id") if perfil.data else None
+
+        if not clinica_id:
+            return jsonify([]), 200
+
+        result = supabase.table("clinicas").select("*").eq("id", clinica_id).execute()
+        return jsonify(result.data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @clinicas_bp.route("/<clinica_id>", methods=["GET"])
 def get_clinica(clinica_id):
     token = get_token(request)

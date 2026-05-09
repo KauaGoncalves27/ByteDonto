@@ -13,11 +13,21 @@ def create_app():
     from app.pacientes.routes import pacientes_bp
     from app.consultas.routes import consultas_bp
     from app.clinicas.routes import clinicas_bp
+    from app.usuarios.routes import usuarios_bp
+    from app.financeiro.routes import financeiro_bp
+    from app.dashboard.routes import dashboard_bp
+    from app.planos.routes import planos_bp
+    from app.imagens.routes import imagens_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(pacientes_bp, url_prefix="/api/pacientes")
     app.register_blueprint(consultas_bp, url_prefix="/api/consultas")
     app.register_blueprint(clinicas_bp, url_prefix="/api/clinicas")
+    app.register_blueprint(usuarios_bp, url_prefix="/api/usuarios")
+    app.register_blueprint(financeiro_bp, url_prefix="/api/financeiro")
+    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
+    app.register_blueprint(planos_bp, url_prefix="/api/planos")
+    app.register_blueprint(imagens_bp, url_prefix="/api/imagens")
 
     @app.route("/api/health")
     def health():

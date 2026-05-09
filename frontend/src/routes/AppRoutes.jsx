@@ -12,6 +12,8 @@ import ViewClinic from "../pages/owner/ViewClinic";
 import RegisterClinic from "../pages/owner/RegisterClinic";
 import EditClinic from "../pages/owner/EditClinic";
 import BindClinic from "../pages/owner/BindClinic";
+import OwnerFinancial from "../pages/owner/Financial";
+import Onboarding from "../pages/owner/Onboarding";
 
 import SpecialistDashboard from "../pages/specialist/Dashboard";
 import SpecialistListPatients from "../pages/specialist/ListPatients";
@@ -47,6 +49,10 @@ export function AppRoutes() {
           <Route path="/owner/view-clinic/:id" element={<PrivateRoute><ViewClinic /></PrivateRoute>} />
           <Route path="/owner/edit-clinic/:id" element={<PrivateRoute><EditClinic /></PrivateRoute>} />
           <Route path="/owner/bind-clinic/:id" element={<PrivateRoute><BindClinic /></PrivateRoute>} />
+          <Route path="/owner/team" element={<PrivateRoute><BindClinic /></PrivateRoute>} />
+          <Route path="/owner/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
+          <Route path="/owner/financial" element={<PrivateRoute><OwnerFinancial role="owner" /></PrivateRoute>} />
+          <Route path="/reception/financial" element={<PrivateRoute><OwnerFinancial role="reception" /></PrivateRoute>} />
 
           {/* ROTA DO ESPECIALISTA (DENTISTA) */}
           <Route path="/specialist/dashboard" element={<PrivateRoute><SpecialistDashboard /></PrivateRoute>} />

@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { apiGetPaciente } from "../../services/api";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
-import IMG from "../../assets/img/icon01.png";
+import { useReceptionSidebar } from "../../hooks/useSidebar";
+import "../../styles/clinic.css";
+import "../../styles/Forms.css";
+import { formatCPF, formatPhone, formatDate, calcIdade } from "../../utils/formatters";
 
 export default function ViewPatient() {
     const { token } = useAuth();
@@ -15,10 +19,7 @@ export default function ViewPatient() {
     const [activeTab, setActiveTab] = useState("historico");
 
     // Menu da recepção
-    const opc_bar = [
-        { id: 1, icon: IMG, name: "Painel Principal", url: "/reception/dashboard", style: "" },
-        { id: 3, icon: IMG, name: "Pacientes", url: "/reception/patients", style: "select" }
-    ];
+    const opc_bar = useReceptionSidebar("patients");
 
     useEffect(() => {
         if (!pacienteId) {
@@ -28,17 +29,10 @@ export default function ViewPatient() {
 
         const fetchPaciente = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/pacientes/${pacienteId}`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setPaciente(data);
-                } else {
-                    console.error("Falha ao buscar paciente");
-                }
+                const data = await apiGetPaciente(token, pacienteId);
+                setPaciente(data);
             } catch (error) {
-                console.error("Erro", error);
+                console.error("Erro ao buscar paciente", error);
             } finally {
                 setLoading(false);
             }
@@ -46,15 +40,6 @@ export default function ViewPatient() {
 
         fetchPaciente();
     }, [pacienteId, token]);
-
-    // Cálculo simplificado de idade
-    const calcIdade = (dataString) => {
-        if (!dataString) return "";
-        const dataNascimento = new Date(dataString);
-        const diffMS = Date.now() - dataNascimento.getTime();
-        const ageDT = new Date(diffMS); 
-        return Math.abs(ageDT.getUTCFullYear() - 1970);
-    };
 
     if (loading) {
         return (
@@ -96,9 +81,9 @@ export default function ViewPatient() {
                             <span style={{background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600}}>{paciente.status}</span>
                         </div>
                         <div style={{display: 'flex', gap: '2rem', marginTop: '1rem', fontFamily: 'var(--font-secondary)'}}>
-                            <span><strong style={{opacity: 0.8}}>CPF:</strong> {paciente.cpf || "-"}</span>
-                            <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {paciente.data_nascimento} ({calcIdade(paciente.data_nascimento)} anos)</span>
-                            <span><strong style={{opacity: 0.8}}>WhatsApp:</strong> {paciente.telefone_whatsapp}</span>
+                            <span><strong style={{opacity: 0.8}}>CPF:</strong> {formatCPF(paciente.cpf)}</span>
+                            <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {formatDate(paciente.data_nascimento)} ({calcIdade(paciente.data_nascimento)} anos)</span>
+                            <span><strong style={{opacity: 0.8}}>WhatsApp:</strong> {formatPhone(paciente.telefone_whatsapp)}</span>
                         </div>
                     </div>
                 </div>
@@ -169,7 +154,7 @@ export default function ViewPatient() {
                                 <p style={{margin: '0 0 24px 0'}}>{anamnese.cirurgias || "Nenhuma relatada."}</p>
 
                                 <p style={{fontWeight: 700, margin: '0 0 8px 0', color: 'var(--TextColor75)'}}>Contato de Emergência</p>
-                                <p style={{margin: '0 0 24px 0'}}>{anamnese.emergencia_nome ? `${anamnese.emergencia_nome} (${anamnese.emergencia_telefone})` : "-"}</p>
+                                <p style={{margin: '0 0 24px 0'}}>{anamnese.emergencia_nome ? `${anamnese.emergencia_nome} (${formatPhone(anamnese.emergencia_telefone)})` : "-"}</p>
                             </div>
                         </div>
                     </div>

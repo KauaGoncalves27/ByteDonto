@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { apiCriarPaciente } from "../../services/api";
+import { maskCPF, maskPhone, maskCEP } from "../../utils/formatters";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
 import IMG from "../../assets/img/icon01.png";
@@ -30,7 +32,16 @@ function RegisterPatient() {
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "cpf") {
+            setFormData({ ...formData, cpf: maskCPF(value) });
+        } else if (name === "telefone_whatsapp") {
+            setFormData({ ...formData, telefone_whatsapp: maskPhone(value) });
+        } else if (name === "emerg_tel") {
+            setFormData({ ...formData, emerg_tel: maskPhone(value) });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     // Estados de Endereço (Aba 2)
@@ -68,13 +79,13 @@ function RegisterPatient() {
         const payload = {
             nome: formData.nome,
             email: formData.email,
-            telefone_whatsapp: formData.telefone_whatsapp,
-            cpf: formData.cpf,
+            telefone_whatsapp: formData.telefone_whatsapp.replace(/\D/g, ''),
+            cpf: formData.cpf.replace(/\D/g, ''),
             rg: formData.rg,
             data_nascimento: formData.data_nascimento,
             genero: formData.genero,
             endereco: {
-                cep: cep,
+                cep: cep.replace(/\D/g, ''),
                 rua: rua,
                 bairro: bairro,
                 cidade: cidade,
@@ -88,29 +99,16 @@ function RegisterPatient() {
                 drogas: formData.drogas,
                 cirurgias: formData.cirurgias,
                 emergencia_nome: formData.emerg_nome,
-                emergencia_telefone: formData.emerg_tel
+                emergencia_telefone: formData.emerg_tel.replace(/\D/g, '')
             }
         };
 
         try {
-            const response = await fetch("http://127.0.0.1:8000/api/pacientes/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                alert("Paciente cadastrado com sucesso no banco de dados!");
-                navigate("/reception/patients");
-            } else {
-                const errorData = await response.json();
-                alert(`Err: ${errorData.error}`);
-            }
+            await apiCriarPaciente(token, payload);
+            alert("Paciente cadastrado com sucesso!");
+            navigate("/reception/patients");
         } catch (err) {
-            alert("Erro de conexão com o servidor. O backend está rodando?");
+            alert(`Erro: ${err.message}`);
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -178,7 +176,7 @@ function RegisterPatient() {
                                     </div>
                                     <div className="field">
                                         <label>RG</label>
-                                        <input type="text" name="rg" value={formData.rg} onChange={handleChange} placeholder="00.000.000-0" />
+                                        <input type="text" name="rg" value={formData.rg} onChange={handleChange} placeholder="Apenas números (7-9 dígitos)" inputMode="numeric" />
                                     </div>
                                 </div>
                                 <div className="flex-inpus">
@@ -234,7 +232,7 @@ function RegisterPatient() {
                                 <div className="flex-inpus">
                                     <div className="field">
                                         <label>CEP *</label>
-                                        <input type="text" placeholder="00000-000" value={cep} onChange={(e) => setCep(e.target.value)} onBlur={buscarCEP} />
+                                        <input type="text" placeholder="00000-000" value={cep} onChange={(e) => setCep(maskCEP(e.target.value))} onBlur={buscarCEP} />
                                     </div>
                                     <div className="field">
                                         <label>Estado (UF)</label>

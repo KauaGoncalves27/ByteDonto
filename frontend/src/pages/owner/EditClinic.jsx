@@ -5,7 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { apiGetClinic, apiUpdateClinic } from "../../services/api";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
-import IMG from "../../assets/img/icon01.png"
+import { useOwnerSidebar } from "../../hooks/useSidebar";
 import '../../styles/clinic.css';
 import '../../styles/Forms.css';
 
@@ -33,15 +33,7 @@ function EditClinic() {
     const [cidade, setCidade] = useState("");
     const [endereco, setEndereco] = useState("");
 
-    const opc_bar = [
-        {
-            id: 1,
-            icon: IMG,
-            name: "Clínica",
-            url: "/owner/clinic/register",
-            style: "select"
-        }
-    ];
+    const opc_bar = useOwnerSidebar("clinic");
 
     /* LOAD DATA FROM API */
     useEffect(() => {
