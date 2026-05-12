@@ -10,10 +10,12 @@ function ButtonsCamps({ icon, name, style, url }) {
         navigate(`${url}`);
     }
 
+    const Icon = icon;
+
     return (
         <>
             <button className={`bar ${style}`} onClick={registration}>
-                <img src={icon} />
+                <Icon className="sidebar-icon" />
                 <p>{name}</p>
             </button>
         </>

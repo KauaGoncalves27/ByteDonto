@@ -89,8 +89,9 @@ button.bar.select {
     box-shadow: inset 4px 0 0 var(--PrimaryColors);
 }
 
-button.bar img {
-    width: 20px;
+button.bar svg {
+    width: 2em;
+    height: 2em;
     opacity: 0.7;
     transition: all 0.2s;
 }

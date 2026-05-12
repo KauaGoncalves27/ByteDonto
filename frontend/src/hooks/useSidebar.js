@@ -1,21 +1,24 @@
 import { useAuth } from "../context/AuthContext";
 import { usePermissao } from "./usePermissao";
-import IMG from "../assets/img/icon01.png";
+
+import ClinicIcon from "../assets/svg/clinic.svg?react";
+import TeamIcon from "../assets/svg/team.svg?react";
+import FinancialIcon from "../assets/svg/financial.svg?react";
+import PatientIcon from "../assets/svg/patient.svg?react";
 
 const OWNER_ITEMS = [
-    { id: "clinic",    name: "Clínica",      url: "/owner/clinic" },
-    { id: "team",      name: "Equipe",       url: "/owner/team" },
-    { id: "agenda",    name: "Minha Agenda", url: "/specialist/dashboard" },
-    { id: "patients",  name: "Pacientes",    url: "/specialist/patients" },
-    { id: "financial", name: "Financeiro",   url: "/owner/financial" },
+    { id: "clinic",    icon: ClinicIcon, name: "Clínica",      url: "/owner/clinic" },
+    { id: "team",      icon: TeamIcon,   name: "Equipe",       url: "/owner/team" },
+    { id: "patients",  icon: PatientIcon, name: "Pacientes",    url: "/specialist/patients" },
+    { id: "financial", icon: FinancialIcon, name: "Financeiro",   url: "/owner/financial" },
 ];
 
 function item(id, name, url) {
-    return { id, icon: IMG, name, url };
+    return { id, icon: ClinicIcon, name, url };
 }
 
 function withSelect(items, activeId) {
-    return items.map(i => ({ ...i, icon: IMG, style: i.id === activeId ? "select" : "" }));
+    return items.map(i => ({ ...i, icon: i.icon, style: i.id === activeId ? "select" : "" }));
 }
 
 export function useOwnerSidebar(activeId) {
