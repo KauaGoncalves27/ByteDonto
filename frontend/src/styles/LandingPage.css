@@ -55,8 +55,8 @@ h1.display {
 }
 
 .highlight-owner {
-    color: #B8860B;
-    background: linear-gradient(90deg, #B8860B, #d4a52a);
+    color: var(--PrimaryColors);
+    background: var(--PrimaryColors);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-size: inherit;
