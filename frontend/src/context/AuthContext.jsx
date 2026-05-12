@@ -39,7 +39,7 @@ export function AuthProvider({ children }) {
         } catch (e) {
             console.error(e);
         }
-        window.location.href = "/login";
+        window.location.href = "/";
     }
 
     return (
