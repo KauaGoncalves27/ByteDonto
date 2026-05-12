@@ -194,6 +194,39 @@ div.auth-divider::after {
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 
+.input-password {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-password input {
+    width: 100%;
+    padding-right: 3.125em;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 0em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.toggle-password svg {
+    width: 2em;
+    height: 2em;
+    fill: var(--TextColor);
+    transition: 0.2s;
+}
+
+.toggle-password:hover svg {
+    fill: var(--PrimaryColors);
+}
+
 /* SUBMIT */
 button.auth-submit {
     width: 100%;

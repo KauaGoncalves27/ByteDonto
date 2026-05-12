@@ -6,6 +6,9 @@ import { apiLogin, apiMe } from "../../services/api";
 import { supabase } from "../../services/supabaseClient";
 import '../../styles/Auth.css';
 
+import EyeOpen from '../../assets/svg/eye_open.svg?react'
+import EyeClose from '../../assets/svg/eye_close.svg?react'
+
 /* MAIN COMPONENT */
 function LoginPage() {
 
@@ -33,6 +36,7 @@ function LoginPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -158,14 +162,29 @@ function LoginPage() {
 
                     <div className="field">
                         <label htmlFor="password">Senha</label>
-                        <input
-                            id="password"
-                            type="password"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <div className="input-password">
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password"
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                            >
+                                {showPassword ? (
+                                    <EyeOpen />
+                                ) : (
+                                    <EyeClose />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {error && <p className="auth-error">{error}</p>}

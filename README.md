@@ -70,7 +70,7 @@ cd frontend/
 <<<<<<< HEAD
 Instalar as independencias:
 ```bash
-npm install react-router-dom @supabase/supabase-js
+npm install react-router-dom @supabase/supabase-js vite-plugin-svgr
 ```
 =======
 # Instale todas as dependências do projeto

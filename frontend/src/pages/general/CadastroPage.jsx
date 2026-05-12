@@ -4,6 +4,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRegistro } from "../../services/api";
 import '../../styles/Auth.css';
 
+import EyeOpen from '../../assets/svg/eye_open.svg?react'
+import EyeClose from '../../assets/svg/eye_close.svg?react'
+
 /* MAIN COMPONENT */
 function CadastroPage() {
 
@@ -36,6 +39,8 @@ function CadastroPage() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
     function handleChange(e) {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -105,28 +110,58 @@ function CadastroPage() {
 
                     <div className="field">
                         <label htmlFor="password">Criar Senha</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            placeholder="Mínimo de 8 caracteres"
-                            value={form.password}
-                            onChange={handleChange}
-                            required
-                        />
+                        <div className="input-password">
+                            <input
+                                id="password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Mínimo de 8 caracteres"
+                                value={form.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password"
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                            >
+                                {showPassword ? (
+                                    <EyeOpen />
+                                ) : (
+                                    <EyeClose />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="field">
                         <label htmlFor="confirmPassword">Confirmar Senha</label>
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="Repita a senha"
-                            value={form.confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
+                        <div className="input-password">
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type={showPasswordConfirm ? "text" : "password"}
+                                placeholder="Repita a senha"
+                                value={form.confirmPassword}
+                                onChange={handleChange}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password"
+                                onClick={() =>
+                                    setShowPasswordConfirm(!showPasswordConfirm)
+                                }
+                            >
+                                {showPasswordConfirm ? (
+                                    <EyeOpen />
+                                ) : (
+                                    <EyeClose />
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     {error && <p className="auth-error">{error}</p>}
