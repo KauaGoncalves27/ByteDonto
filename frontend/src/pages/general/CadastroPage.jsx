@@ -1,11 +1,31 @@
 /* IMPORTS */
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRegistro } from "../../services/api";
 import '../../styles/Auth.css';
 
 /* MAIN COMPONENT */
 function CadastroPage() {
+
+    const { type } = useParams();
+
+    const validTypes = {
+        owner: {
+            text: "Comece a gerenciar a sua clínica hoje",
+            badge: "NOVO PROPRIEDADE"
+        },
+
+        employee: {
+            text: "Comece a trabalhar com a equipe da clínica hoje",
+            badge: "NOVO FUNCIONARIO"
+        },
+
+        specialist: {
+            text: "Comece a atender seus pacientes com a gente hoje",
+            badge: "NOVO ESPECIALISTA"
+        }
+    };
+
     const navigate = useNavigate();
     const [form, setForm] = useState({
         nome: "",
@@ -44,16 +64,16 @@ function CadastroPage() {
     }
 
     return (
-        <div className="auth-wrapper owner">
+        <div className={`auth-wrapper ${type}`}>
             <div className="auth-card">
 
                 {/* HEADER */}
                 <div className="auth-header">
                     <h1 className="auth-card-logo">BYTE DONTO</h1>
-                    <p>Comece a gerenciar a sua clínica hoje.</p>
+                    <p>{validTypes[type]?.text}</p>
                 </div>
 
-                <div className="auth-badge">NOVO PROPRIETÁRIO</div>
+                <div className="auth-badge">{validTypes[type]?.badge}</div>
 
                 {/* FORM */}
                 <form onSubmit={handleSubmit} className="auth-form">
@@ -138,7 +158,7 @@ function CadastroPage() {
                 <div className="auth-footer">
                     <p className="text75">
                         Já tem uma conta?{" "}
-                        <Link to="/login">Fazer login</Link>
+                        <Link to={`/login/${type}`}>Fazer login</Link>
                     </p>
                     <p style={{marginTop: "8px"}}><Link to="/">← Voltar p/ o início</Link></p>
                 </div>

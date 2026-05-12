@@ -16,9 +16,10 @@
     --TextColor75: #475569;
     --LineColor: #E2E8F0;
 
-    --PrimaryColors: #2563EB; /* Especialista */
-    --PrimaryColorsTheme: #1D4ED8;
-    --PrimaryColorsBack: #EFF6FF;
+    --PrimaryColors: #458EE5;
+    --PrimaryColorsHover: #C5CBF9;
+    --PrimaryColorsTheme: #143966;
+    --PrimaryColorsBack: #BED4EE;
 
     --NotPrimaryColors: #EF4444;
     --NotPrimaryColorsTheme: #DC2626;
@@ -31,15 +32,17 @@
 }
 
 .owner {
-    --PrimaryColors: #B8860B;
-    --PrimaryColorsTheme: #946B09;
-    --PrimaryColorsBack: #FEFCE8;
+    --PrimaryColors: #C29926;
+    --PrimaryColorsHover: #F9EFC5;
+    --PrimaryColorsTheme: #664C14;
+    --PrimaryColorsBack: #F9EFC5;
 }
 
-.reception {
-    --PrimaryColors: #16A34A;
-    --PrimaryColorsTheme: #15803D;
-    --PrimaryColorsBack: #F0FDF4;
+.employee {
+    --PrimaryColors: #16C06B;
+    --PrimaryColorsHover: #C5F9DF;
+    --PrimaryColorsTheme: #14663D;
+    --PrimaryColorsBack: #F7FCF9;
 }
 
 /* BODY STYLING */

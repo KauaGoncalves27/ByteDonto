@@ -1,6 +1,6 @@
 /* IMPORTS */
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { apiLogin, apiMe } from "../../services/api";
 import { supabase } from "../../services/supabaseClient";
@@ -8,6 +8,26 @@ import '../../styles/Auth.css';
 
 /* MAIN COMPONENT */
 function LoginPage() {
+
+    const { type } = useParams();
+
+    const validTypes = {
+        owner: {
+            text: "Acesse seu painel administrativo",
+            badge: "PROPRIEDADE"
+        },
+
+        employee: {
+            text: "Acesse seu painel de recepção",
+            badge: "FUNCIONARIO"
+        },
+
+        specialist: {
+            text: "Acesse seu painel de especialista",
+            badge: "ESPECIALISTA"
+        }
+    };
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -93,16 +113,16 @@ function LoginPage() {
     }
 
     return (
-        <div className="auth-wrapper owner">
+        <div className={`auth-wrapper ${type}`}>
             <div className="auth-card">
                 
                 {/* HEADER */}
                 <div className="auth-header">
                     <h1 className="auth-card-logo">BYTE DONTO</h1>
-                    <p>Acesse seu painel administrativo.</p>
+                    <p>{validTypes[type]?.text}</p>
                 </div>
 
-                <div className="auth-badge">PROPRIETÁRIO</div>
+                <div className="auth-badge">{validTypes[type]?.badge}</div>
 
                 {/* GOOGLE BUTTON */}
                 <button
@@ -163,7 +183,7 @@ function LoginPage() {
                 <div className="auth-footer">
                     <p className="text75">
                         Não possui cadastro?{" "}
-                        <Link to="/cadastro">Criar conta</Link>
+                        <Link to={`/cadastro/${type}`}>Criar conta</Link>
                     </p>
                     <p style={{marginTop: "8px"}}><Link to="/">← Voltar p/ o início</Link></p>
                 </div>

@@ -40,8 +40,8 @@ export function AppRoutes() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/cadastro" element={<CadastroPage />} />
+          <Route path="/login/:type" element={<LoginPage />} />
+          <Route path="/cadastro/:type" element={<CadastroPage />} />
 
           {/* ROTA DO PROPRIETÁRIO */}
           <Route path="/owner/clinic" element={<PrivateRoute><ListClinic /></PrivateRoute>} />
