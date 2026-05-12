@@ -9,8 +9,8 @@ function NotList({ img, text_p, text_l, text_btn, utl_btn }) {
             <div className="not-list">
                 <img src={img} />
                 <p>{text_p}</p>
-                <label>{text_l}</label>
-                <ButtonP text={text_btn} url={utl_btn} />
+                {text_l && <label>{text_l}</label>}
+                {text_btn && <ButtonP text={text_btn} url={utl_btn} />}
             </div>
         </>
     );

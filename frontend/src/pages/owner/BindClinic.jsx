@@ -5,11 +5,18 @@ import { apiGetEquipe, apiCriarMembro, apiRemoverMembro, apiAtualizarMembro, api
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
 import { useOwnerSidebar } from "../../hooks/useSidebar";
+import { apiGetMetricas } from "../../services/api";
 import "../../styles/clinic.css";
 import "../../styles/Forms.css";
 import "../../styles/Table.css";
 
 const PAPEIS = ["Especialista", "Recepção"];
+
+const METRICAS_CONFIG = [
+    { key: "total_especialistas",label: "Nº Total de Especialistas", emoji: "🦷", moeda: false },
+    { key: "total_funcionarios", label: "Nº Total de Funcionários",  emoji: "👨", moeda: false  },
+    { key: "total_membros",      label: "Nº Total de Membros",       emoji: "👥", moeda: false },
+];
 
 const LABELS_PERMISSAO = {
     ver_pacientes:      "Ver pacientes",
@@ -28,7 +35,21 @@ const PAPEL_LABEL = {
     "Recepção": { label: "Recepção", cor: "#059669" },
 };
 
-const FORM_INICIAL = { nome: "", email: "", senha: "", papel: "Especialista" };
+const FORM_INICIAL = { email: "", papel: "Especialista" };
+
+function MetricasSkeleton() {
+    return (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+            {METRICAS_CONFIG.map((m) => (
+                <div key={m.key} style={{ background: "white", borderRadius: "16px", border: "1px solid var(--LineColor)", padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                    <div style={{ height: "32px", borderRadius: "8px", background: "var(--LineColor)", marginBottom: "0.75rem" }} />
+                    <div style={{ height: "36px", borderRadius: "8px", background: "var(--LineColor)", marginBottom: "0.75rem" }} />
+                    <div style={{ height: "14px", borderRadius: "6px", background: "var(--LineColor)", marginBottom: "0.75rem" }} />
+                </div>
+            ))}
+        </div>
+    );
+}
 
 function BindClinic() {
     const { token } = useAuth();
@@ -37,6 +58,8 @@ function BindClinic() {
     const [equipe, setEquipe] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
+    const [loadingMetricas, setLoadingMetricas] = useState(true);
+    const [metricas, setMetricas] = useState(null);
 
     // Modal de criação
     const [showForm, setShowForm] = useState(false);
@@ -84,6 +107,14 @@ function BindClinic() {
         document.body.style.overflow = showForm || showEdit || showPerm ? "hidden" : "auto";
         return () => { document.body.style.overflow = "auto"; };
     }, [showForm, showEdit, showPerm]);
+
+    useEffect(() => {
+        if (!token) return;
+        apiGetMetricas(token)
+            .then(data => setMetricas(data))
+            .catch(err => console.error("Erro ao carregar métricas", err))
+            .finally(() => setLoadingMetricas(false));
+    }, [token]);
 
     // --- Criar membro ---
     function abrirForm() {
@@ -208,27 +239,16 @@ function BindClinic() {
                                     </div>
                                 )}
                                 <div className="field">
-                                    <label htmlFor="nome">Nome completo *</label>
-                                    <input id="nome" type="text" required value={form.nome}
-                                        onChange={e => setForm(p => ({ ...p, nome: e.target.value }))} />
-                                </div>
-                                <div className="field">
                                     <label htmlFor="email">E-mail *</label>
                                     <input id="email" type="email" required value={form.email}
                                         onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
-                                </div>
-                                <div className="field">
-                                    <label htmlFor="senha">Senha de acesso *</label>
-                                    <input id="senha" type="password" required minLength={6} value={form.senha}
-                                        onChange={e => setForm(p => ({ ...p, senha: e.target.value }))}
-                                        placeholder="Mínimo 6 caracteres" />
                                 </div>
                                 <div className="field">
                                     <label htmlFor="papel">Nível de acesso *</label>
                                     <select id="papel" value={form.papel}
                                         onChange={e => setForm(p => ({ ...p, papel: e.target.value }))}>
                                         {PAPEIS.map(p => (
-                                            <option key={p} value={p}>{p === "Recepção" ? "Recepção / Atendimento" : p}</option>
+                                            <option key={p} value={p}>{p === "Recepção" ? "Atendimento" : p}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -356,9 +376,28 @@ function BindClinic() {
             )}
 
             <main className="mainBar owner register">
-                <p>
-                    <Link className="text75" to="/owner/clinic">← Voltar para Clínicas</Link>
-                </p>
+
+                {loadingMetricas ? (
+                    <MetricasSkeleton />
+                ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+                        {METRICAS_CONFIG.map((m) => {
+                            const valor = metricas ? metricas[m.key] : null;
+                            const display = valor == null
+                                ? "—"
+                                : m.moeda
+                                    ? Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                                    : valor;
+                            return (
+                                <div key={m.key} style={{ background: "white", borderRadius: "16px", border: "1px solid var(--LineColor)", padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+                                    <span style={{ fontSize: "28px", display: "block", marginBottom: "0.75rem" }}>{m.emoji}</span>
+                                    <p style={{ margin: "0 0 0.25rem 0", fontSize: "28px", fontWeight: 800, color: "var(--PrimaryColorsTheme)", fontFamily: "var(--font-secondary)", lineHeight: 1 }}>{display}</p>
+                                    <p style={{ margin: 0, fontSize: "13px", color: "var(--TextColor75)", fontWeight: 600 }}>{m.emoji} {m.label}</p>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
 
                 <div className="camp-clinic camp-register">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2em" }}>

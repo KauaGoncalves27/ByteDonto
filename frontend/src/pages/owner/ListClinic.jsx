@@ -125,7 +125,7 @@ function ListClinic() {
                         clinicasFiltradas.map((item) => (
                             <CampList
                                 key={item.id}
-                                clinic_id={item.id}
+                                clinic_url={`/owner/view-clinic/${item.id}`}
                                 clinic_logo={item.logo}
                                 clinic_img={IMG}
                                 clinic_name={item.nome}

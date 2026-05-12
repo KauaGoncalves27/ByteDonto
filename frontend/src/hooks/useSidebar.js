@@ -7,10 +7,10 @@ import FinancialIcon from "../assets/svg/financial.svg?react";
 import PatientIcon from "../assets/svg/patient.svg?react";
 
 const OWNER_ITEMS = [
-    { id: "clinic",    icon: ClinicIcon, name: "Clínica",      url: "/owner/clinic" },
-    { id: "team",      icon: TeamIcon,   name: "Equipe",       url: "/owner/team" },
-    { id: "patients",  icon: PatientIcon, name: "Pacientes",    url: "/specialist/patients" },
-    { id: "financial", icon: FinancialIcon, name: "Financeiro",   url: "/owner/financial" },
+    { id: "clinic",    icon: ClinicIcon,    name: "Clínica",    url: "/owner/clinic" },
+    { id: "team",      icon: TeamIcon,      name: "Equipe",     url: "/owner/team" },
+    { id: "patients",  icon: PatientIcon,   name: "Pacientes",  url: "/owner/pacients" },
+    { id: "financial", icon: FinancialIcon, name: "Financeiro", url: "/owner/financial" },
 ];
 
 function item(id, name, url) {

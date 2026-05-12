@@ -7,10 +7,14 @@ import LandingPage from "../pages/general/LandingPage";
 import LoginPage from "../pages/general/LoginPage";
 import CadastroPage from "../pages/general/CadastroPage";
 
-import ListClinic from "../pages/owner/ListClinic";
-import ViewClinic from "../pages/owner/ViewClinic";
-import RegisterClinic from "../pages/owner/RegisterClinic";
-import EditClinic from "../pages/owner/EditClinic";
+import OwnerListClinic from "../pages/owner/ListClinic";
+import OwnerRegisterClinic from "../pages/owner/RegisterClinic";
+import OwnerViewClinic from "../pages/owner/ViewClinic";
+import OwnerEditClinic from "../pages/owner/EditClinic";
+
+import OwnerPacientClinic from "../pages/owner/PacientClinic";
+import OwnerListPacient from "../pages/owner/ListPacient";
+
 import BindClinic from "../pages/owner/BindClinic";
 import OwnerFinancial from "../pages/owner/Financial";
 import Onboarding from "../pages/owner/Onboarding";
@@ -44,15 +48,20 @@ export function AppRoutes() {
           <Route path="/cadastro/:type" element={<CadastroPage />} />
 
           {/* ROTA DO PROPRIETÁRIO */}
-          <Route path="/owner/clinic" element={<PrivateRoute><ListClinic /></PrivateRoute>} />
-          <Route path="/owner/clinic/register" element={<PrivateRoute><RegisterClinic /></PrivateRoute>} />
-          <Route path="/owner/view-clinic/:id" element={<PrivateRoute><ViewClinic /></PrivateRoute>} />
-          <Route path="/owner/edit-clinic/:id" element={<PrivateRoute><EditClinic /></PrivateRoute>} />
-          <Route path="/owner/bind-clinic/:id" element={<PrivateRoute><BindClinic /></PrivateRoute>} />
+          <Route path="/owner/clinic" element={<PrivateRoute><OwnerListClinic /></PrivateRoute>} />
+          <Route path="/owner/clinic/register" element={<PrivateRoute><OwnerRegisterClinic /></PrivateRoute>} />
+          <Route path="/owner/view-clinic/:id" element={<PrivateRoute><OwnerViewClinic /></PrivateRoute>} />
+          <Route path="/owner/edit-clinic/:id" element={<PrivateRoute><OwnerEditClinic /></PrivateRoute>} />
+          
           <Route path="/owner/team" element={<PrivateRoute><BindClinic /></PrivateRoute>} />
+          
+          <Route path="/owner/pacients" element={<PrivateRoute><OwnerPacientClinic /></PrivateRoute>} />
+          <Route path="/owner/pacients/:id_clinic" element={<PrivateRoute><OwnerListPacient /></PrivateRoute>} />
+
+          <Route path="/owner/list-pacients" element={<PrivateRoute><OwnerListPacient /></PrivateRoute>} />
+          <Route path="/owner/bind-clinic/:id" element={<PrivateRoute><BindClinic /></PrivateRoute>} />
           <Route path="/owner/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
           <Route path="/owner/financial" element={<PrivateRoute><OwnerFinancial role="owner" /></PrivateRoute>} />
-          <Route path="/reception/financial" element={<PrivateRoute><OwnerFinancial role="reception" /></PrivateRoute>} />
 
           {/* ROTA DO ESPECIALISTA (DENTISTA) */}
           <Route path="/specialist/dashboard" element={<PrivateRoute><SpecialistDashboard /></PrivateRoute>} />
