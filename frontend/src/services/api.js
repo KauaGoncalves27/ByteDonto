@@ -136,6 +136,16 @@ export async function apiGetClinic(token, clinicaId) {
     return data;
 }
 
+export async function apiDeleteClinic(token, clinicaId) {
+    const res = await fetch(`${API_URL}/api/clinicas/${clinicaId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao deletar clínica");
+    return data;
+}
+
 export async function apiUpdateClinic(token, clinicaId, clinicData) {
     const res = await fetch(`${API_URL}/api/clinicas/${clinicaId}`, {
         method: "PUT",

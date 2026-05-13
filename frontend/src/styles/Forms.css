@@ -6,7 +6,7 @@ form .sec-title {
     font-weight: 700;
     color: var(--PrimaryColorsTheme);
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid rgba(226, 232, 240, 0.6);
+    border-bottom: 2px solid rgba(9, 108, 238, 0.6);
 }
 
 form .forms-section:first-child .sec-title {

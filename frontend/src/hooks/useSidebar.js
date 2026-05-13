@@ -54,9 +54,9 @@ export function useReceptionSidebar(activeId) {
     }
 
     const items = [];
-    if (verAgenda)     items.push(item("dashboard", "Painel Principal", "/reception/dashboard"));
-    if (verPacientes)  items.push(item("patients",  "Pacientes",        "/reception/patients"));
-    if (verFinanceiro) items.push(item("financial", "Financeiro",       "/reception/financial"));
+    if (verAgenda)     items.push(item("dashboard", "Painel Principal", "/employee/dashboard"));
+    if (verPacientes)  items.push(item("patients",  "Pacientes",        "/employee/patients"));
+    if (verFinanceiro) items.push(item("financial", "Financeiro",       "/employee/financial"));
 
     return withSelect(items, activeId);
 }

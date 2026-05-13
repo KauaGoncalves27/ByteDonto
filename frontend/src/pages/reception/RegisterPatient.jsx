@@ -16,8 +16,8 @@ function RegisterPatient() {
 
     // Menu da recepção
     const opc_bar = [
-        { id: 1, icon: IMG, name: "Painel Principal", url: "/reception/dashboard", style: "" },
-        { id: 3, icon: IMG, name: "Pacientes", url: "/reception/patients", style: "select" }
+        { id: 1, icon: IMG, name: "Painel Principal", url: "/employee/dashboard", style: "" },
+        { id: 3, icon: IMG, name: "Pacientes", url: "/employee/patients", style: "select" }
     ];
 
     // Controle de Abas
@@ -106,7 +106,7 @@ function RegisterPatient() {
         try {
             await apiCriarPaciente(token, payload);
             alert("Paciente cadastrado com sucesso!");
-            navigate("/reception/patients");
+            navigate("/employee/patients");
         } catch (err) {
             alert(`Erro: ${err.message}`);
             console.error(err);
@@ -122,7 +122,7 @@ function RegisterPatient() {
             
             <main className="mainBar reception register">
                 <p>
-                    <Link className="text75" to="/reception/dashboard">← Voltar para Dashboard</Link>
+                    <Link className="text75" to="/employee/dashboard">← Voltar para Dashboard</Link>
                 </p>
 
                 <div className="camp-clinic camp-register" style={{marginTop: '1rem'}}>
@@ -172,7 +172,7 @@ function RegisterPatient() {
                                 <div className="flex-inpus">
                                     <div className="field">
                                         <label>CPF *</label>
-                                        <input type="text" name="cpf" value={formData.cpf} onChange={handleChange} required placeholder="000.000.000-00" />
+                                        <input type="text" name="cpf" value={formData.cpf} onChange={handleChange} required placeholder="000.000.000-00" inputMode="numeric" maxLength={14} />
                                     </div>
                                     <div className="field">
                                         <label>RG</label>

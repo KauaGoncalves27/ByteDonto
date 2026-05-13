@@ -9,6 +9,15 @@ import { useOwnerSidebar } from "../../hooks/useSidebar";
 import '../../styles/clinic.css';
 import '../../styles/Forms.css';
 
+function formatCNPJ(value) {
+    const digits = value.replace(/\D/g, '').slice(0, 14);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0,2)}.${digits.slice(2)}`;
+    if (digits.length <= 8) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5)}`;
+    if (digits.length <= 12) return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8)}`;
+    return `${digits.slice(0,2)}.${digits.slice(2,5)}.${digits.slice(5,8)}/${digits.slice(8,12)}-${digits.slice(12)}`;
+}
+
 /* MAIN COMPONENT */
 function EditClinic() {
     const { id } = useParams();
@@ -41,7 +50,7 @@ function EditClinic() {
             apiGetClinic(token, id)
                 .then((clinicData) => {
                     setNameClinic(clinicData.name || "");
-                    setCNPJ(clinicData.cnpj || "");
+                    setCNPJ(formatCNPJ(clinicData.cnpj || ""));
                     setRazaoSocial(clinicData.razao_social || "");
                     setResumo(clinicData.resumo || "");
 
@@ -126,7 +135,9 @@ function EditClinic() {
                                         <input
                                             type="text"
                                             value={CNPJ}
-                                            onChange={(e) => setCNPJ(e.target.value)}
+                                            onChange={(e) => setCNPJ(formatCNPJ(e.target.value))}
+                                            placeholder="00.000.000/0000-00"
+                                            maxLength={18}
                                         />
                                     </div>
                                     

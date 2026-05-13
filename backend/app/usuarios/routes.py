@@ -1,35 +1,12 @@
 from flask import Blueprint, request, jsonify
 from supabase import create_client
 from app.database import supabase
-from app.utils import get_token, get_user_e_clinica
+from app.utils import get_token, get_user_e_clinica, PERMISSOES_PADRAO
 from config import Config
 
 supabase_admin = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
 
 usuarios_bp = Blueprint("usuarios", __name__)
-
-PERMISSOES_PADRAO = {
-    "Especialista": {
-        "ver_pacientes":      True,
-        "editar_pacientes":   False,
-        "ver_prontuario":     True,
-        "editar_prontuario":  True,
-        "ver_agenda":         True,
-        "agendar_consultas":  False,
-        "cancelar_consultas": False,
-        "ver_financeiro":     False,
-    },
-    "Recepção": {
-        "ver_pacientes":      True,
-        "editar_pacientes":   True,
-        "ver_prontuario":     False,
-        "editar_prontuario":  False,
-        "ver_agenda":         True,
-        "agendar_consultas":  True,
-        "cancelar_consultas": True,
-        "ver_financeiro":     True,
-    },
-}
 
 
 @usuarios_bp.route("/", methods=["GET"])
@@ -41,6 +18,9 @@ def listar_equipe():
 
     try:
         _, clinica_id, _ = get_user_e_clinica(token)
+
+        if not clinica_id:
+            return jsonify([]), 200
 
         result = (
             supabase.table("usuarios")

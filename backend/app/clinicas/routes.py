@@ -79,6 +79,28 @@ def get_clinica(clinica_id):
         return jsonify({"error": str(e)}), 500
 
 
+@clinicas_bp.route("/<clinica_id>", methods=["DELETE"])
+def deletar_clinica(clinica_id):
+    token = get_token(request)
+    if not token:
+        return jsonify({"error": "Não autorizado"}), 401
+
+    try:
+        _, user_clinica_id = get_user_clinica(token)
+
+        if clinica_id != user_clinica_id:
+            return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
+
+        # Remove vínculo dos usuários antes de deletar a clínica
+        supabase.table("usuarios").update({"clinica_id": None}).eq("clinica_id", clinica_id).execute()
+
+        supabase.table("clinicas").delete().eq("id", clinica_id).execute()
+
+        return jsonify({"message": "Clínica removida com sucesso"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @clinicas_bp.route("/<clinica_id>", methods=["PUT"])
 def atualizar_clinica(clinica_id):
     token = get_token(request)

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from supabase import create_client
 from config import Config
 from app.database import supabase
+from app.utils import PERMISSOES_PADRAO
 import requests as http_requests
 
 supabase_auth = create_client(Config.SUPABASE_URL, Config.SUPABASE_ANON_KEY)
@@ -106,7 +107,7 @@ def registro():
             "id": novo_id,
             "nome": nome,
             "papel": papel,
-            "permissoes": {},
+            "permissoes": PERMISSOES_PADRAO.get(papel, {}),
         }).execute()
 
         return jsonify({"message": "Conta criada com sucesso. Faça login para continuar."}), 201

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { apiGetPacientes, apiGetEquipe, apiCriarConsulta, apiGetConsultas } from "../../services/api";
+import { formatCPF } from "../../utils/formatters";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
 import Card from "../../components/card/CardInfo";
@@ -157,12 +158,12 @@ function ReceptionDashboard() {
                                                     <li key={p.id} onClick={() => { setSelectedPatient(p); setSearchName(""); }}
                                                         style={{ padding: '12px', borderRadius: '8px', cursor: 'pointer', borderBottom: '1px solid var(--LineColor)' }}>
                                                         <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.nome}</p>
-                                                        <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {p.cpf}</span>
+                                                        <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {formatCPF(p.cpf)}</span>
                                                     </li>
                                                 ))}
                                             </ul>
                                         )}
-                                        <Link to="/reception/patient/register" style={{ color: 'var(--PrimaryColorsTheme)', fontSize: '13px', textDecoration: 'underline', marginTop: '12px', display: 'inline-block', fontWeight: 'bold' }}>
+                                        <Link to="/employee/patient/register" style={{ color: 'var(--PrimaryColorsTheme)', fontSize: '13px', textDecoration: 'underline', marginTop: '12px', display: 'inline-block', fontWeight: 'bold' }}>
                                             + Paciente não encontrado? (Cadastrar)
                                         </Link>
                                     </div>
@@ -246,13 +247,13 @@ function ReceptionDashboard() {
                                         <li key={p.id} onClick={() => setQuickSearch(p.nome)}
                                             style={{ padding: '12px', borderRadius: '8px', cursor: 'pointer', borderBottom: '1px solid var(--LineColor)' }}>
                                             <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.nome}</p>
-                                            <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {p.cpf}</span>
+                                            <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {formatCPF(p.cpf)}</span>
                                         </li>
                                     ))}
                                 </ul>
                             )}
                         </div>
-                        <Link to="/reception/patients" className="submit" style={{ padding: '16px 32px', textAlign: 'center' }}>Acessar Ficha</Link>
+                        <Link to="/employee/patients" className="submit" style={{ padding: '16px 32px', textAlign: 'center' }}>Acessar Ficha</Link>
                     </div>
                 </div>
 

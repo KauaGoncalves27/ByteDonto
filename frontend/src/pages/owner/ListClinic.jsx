@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { apiGetClinics, apiGetMetricas } from "../../services/api";
+import { apiGetClinics, apiGetMetricas, apiDeleteClinic } from "../../services/api";
 import Section from "../../components/section/SectionAuth";
 import ButtonH1 from "../../components/buttons/ButtonsRediTitle";
 import SideBar from "../../components/bar/SideBar";
@@ -57,6 +57,16 @@ function ListClinic() {
             .catch(err => console.error("Erro ao carregar métricas", err))
             .finally(() => setLoadingMetricas(false));
     }, [token]);
+
+    async function handleDelete(clinicaId, nome) {
+        if (!window.confirm(`Tem certeza que deseja excluir a clínica "${nome}"? Esta ação não pode ser desfeita.`)) return;
+        try {
+            await apiDeleteClinic(token, clinicaId);
+            setClinicas(prev => prev.filter(c => c.id !== clinicaId));
+        } catch (err) {
+            alert(err.message || "Erro ao excluir clínica.");
+        }
+    }
 
     const clinicasFiltradas = clinicas.filter(c =>
         c.nome?.toLowerCase().includes(busca.toLowerCase()) ||
@@ -131,6 +141,7 @@ function ListClinic() {
                                 clinic_name={item.nome}
                                 clinic_cnpj={item.cnpj}
                                 clinic_phone={item.whatsapp}
+                                onDelete={() => handleDelete(item.id, item.nome)}
                             />
                         ))
                     )}

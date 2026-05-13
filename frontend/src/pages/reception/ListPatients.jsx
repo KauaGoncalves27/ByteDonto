@@ -53,7 +53,7 @@ function ListPatients() {
                         <p className="text75">Listagem completa e busca avançada de todos os pacientes da clínica.</p>
                     </div>
                     <div>
-                        <Link to="/reception/patient/register" style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                        <Link to="/employee/patient/register" style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                             + Cadastrar Novo Paciente
                         </Link>
                     </div>
@@ -92,7 +92,7 @@ function ListPatients() {
                                         <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.telefone_whatsapp)}</p>
                                         <p>-</p>
                                         <p style={{color: p.status === 'Ativo' ? '#22C55E' : 'var(--TextColor75)', fontWeight: 700}}>{p.status || "Ativo"}</p>
-                                        <div style={{textAlign: 'right'}}><Link to={`/reception/patient/view?id=${p.id}`} className="submit" style={{padding: '6px 16px', fontSize: '13px', background: 'var(--LineColor)', color: 'var(--TextColor)', boxShadow: 'none', display: 'inline-block'}}>Ver Ficha</Link></div>
+                                        <div style={{textAlign: 'right'}}><Link to={`/employee/patient/view?id=${p.id}`} className="submit" style={{padding: '6px 16px', fontSize: '13px', background: 'var(--LineColor)', color: 'var(--TextColor)', boxShadow: 'none', display: 'inline-block'}}>Ver Ficha</Link></div>
                                     </div>
                                 ))
                             )}

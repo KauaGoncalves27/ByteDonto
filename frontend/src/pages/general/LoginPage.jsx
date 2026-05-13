@@ -92,7 +92,11 @@ function LoginPage() {
                         login(session.access_token, perfil);
                         routBasedOnRole(perfil);
                     })
-                    .catch(() => { });
+                    .catch((err) => {
+                        if (err.message !== "Failed to fetch") {
+                            setError(err.message || "Erro ao autenticar com o Google. Tente novamente.");
+                        }
+                    });
             }
         });
     }, []);
@@ -113,7 +117,11 @@ function LoginPage() {
             login(access_token, perfil);
             routBasedOnRole(perfil);
         } catch (err) {
-            setError(err.message || "Email ou senha incorretos.");
+            if (err.message === "Failed to fetch") {
+                setError("Servidor indisponível. Verifique sua conexão ou tente novamente.");
+            } else {
+                setError(err.message || "Email ou senha incorretos.");
+            }
         } finally {
             setLoading(false);
         }
