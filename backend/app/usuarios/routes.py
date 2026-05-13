@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from supabase import create_client
 from app.database import supabase
+from app.utils import get_token, get_user_e_clinica
 from config import Config
 
 supabase_admin = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
@@ -29,16 +30,6 @@ PERMISSOES_PADRAO = {
         "ver_financeiro":     True,
     },
 }
-
-
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_e_clinica(token):
-    user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id, papel").eq("id", user.id).single().execute()
-    return user.id, perfil.data["clinica_id"], perfil.data["papel"]
 
 
 @usuarios_bp.route("/", methods=["GET"])
@@ -95,16 +86,14 @@ def criar_membro():
         if len(senha) < 6:
             return jsonify({"error": "A senha deve ter no mínimo 6 caracteres"}), 400
 
-        # Cria o usuário no Supabase Auth usando a service role key
         auth_response = supabase_admin.auth.admin.create_user({
             "email": email,
             "password": senha,
-            "email_confirm": True  # Confirma o email automaticamente
+            "email_confirm": True
         })
 
         novo_usuario_id = auth_response.user.id
 
-        # Cria o perfil na tabela usuarios vinculado à clínica
         supabase_admin.table("usuarios").insert({
             "id": novo_usuario_id,
             "clinica_id": clinica_id,
@@ -130,10 +119,7 @@ def criar_membro():
 
 @usuarios_bp.route("/<usuario_id>", methods=["DELETE"])
 def remover_membro(usuario_id):
-    """
-    Proprietário remove um membro da equipe.
-    Deleta o perfil da tabela e o usuário do Auth.
-    """
+    """Proprietário remove um membro da equipe."""
     token = get_token(request)
     if not token:
         return jsonify({"error": "Não autorizado"}), 401
@@ -147,7 +133,6 @@ def remover_membro(usuario_id):
         if usuario_id == solicitante_id:
             return jsonify({"error": "Você não pode remover a si mesmo"}), 400
 
-        # Verifica se o membro pertence à mesma clínica
         membro = supabase.table("usuarios").select("clinica_id, papel").eq("id", usuario_id).single().execute()
         if not membro.data or membro.data["clinica_id"] != clinica_id:
             return jsonify({"error": "Membro não encontrado nesta clínica"}), 404
@@ -155,10 +140,7 @@ def remover_membro(usuario_id):
         if membro.data["papel"] == "Dono":
             return jsonify({"error": "Não é possível remover outro proprietário"}), 403
 
-        # Remove o perfil da tabela usuarios
         supabase_admin.table("usuarios").delete().eq("id", usuario_id).execute()
-
-        # Remove o usuário do Auth
         supabase_admin.auth.admin.delete_user(usuario_id)
 
         return jsonify({"message": "Membro removido com sucesso"}), 200
@@ -180,16 +162,24 @@ def atualizar_membro(usuario_id):
         if papel_solicitante != "Dono":
             return jsonify({"error": "Apenas o proprietário pode editar membros"}), 403
 
-        membro = supabase.table("usuarios").select("clinica_id").eq("id", usuario_id).single().execute()
+        membro = supabase.table("usuarios").select("clinica_id, papel").eq("id", usuario_id).single().execute()
         if not membro.data or membro.data["clinica_id"] != clinica_id:
             return jsonify({"error": "Membro não encontrado nesta clínica"}), 404
 
         data = request.get_json()
         atualizacao = {}
+
         if "nome" in data:
             atualizacao["nome"] = data["nome"].strip()
-        if "papel" in data and data["papel"] in ["Especialista", "Recepção"]:
-            atualizacao["papel"] = data["papel"]
+
+        novo_papel = data.get("papel")
+        if novo_papel is not None:
+            if novo_papel not in ["Especialista", "Recepção"]:
+                return jsonify({"error": "Papel inválido. Use 'Especialista' ou 'Recepção'"}), 400
+            atualizacao["papel"] = novo_papel
+            # Reseta permissões para os padrões do novo papel ao trocar de papel
+            if novo_papel != membro.data["papel"]:
+                atualizacao["permissoes"] = PERMISSOES_PADRAO.get(novo_papel, {})
 
         if not atualizacao:
             return jsonify({"error": "Nenhum campo válido para atualizar"}), 400

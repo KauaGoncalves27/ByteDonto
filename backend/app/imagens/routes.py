@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from uuid import uuid4
 from supabase import create_client
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 from config import Config
 
 imagens_bp = Blueprint("imagens", __name__)
@@ -12,35 +13,25 @@ supabase_admin = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
 BUCKET = "paciente-imagens"
 
 
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_clinica(token):
-    user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).single().execute()
-    return user.id, perfil.data["clinica_id"]
-
-
 @imagens_bp.route("/upload", methods=["POST"])
 def upload_imagem():
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         _, clinica_id = get_user_clinica(token)
 
         paciente_id = request.form.get("paciente_id")
         if not paciente_id:
-            return jsonify({"error": "paciente_id e obrigatorio"}), 400
+            return jsonify({"error": "paciente_id é obrigatório"}), 400
 
         if "file" not in request.files:
             return jsonify({"error": "Nenhum arquivo enviado"}), 400
 
         file = request.files["file"]
         if not file.filename:
-            return jsonify({"error": "Nome de arquivo invalido"}), 400
+            return jsonify({"error": "Nome de arquivo inválido"}), 400
 
         filename_unico = f"{uuid4().hex}_{secure_filename(file.filename)}"
         storage_path = f"{clinica_id}/{paciente_id}/{filename_unico}"
@@ -78,11 +69,11 @@ def upload_imagem():
 def listar_imagens():
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     paciente_id = request.args.get("paciente_id")
     if not paciente_id:
-        return jsonify({"error": "paciente_id e obrigatorio"}), 400
+        return jsonify({"error": "paciente_id é obrigatório"}), 400
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -104,7 +95,7 @@ def listar_imagens():
 def deletar_imagem(imagem_id):
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -119,7 +110,7 @@ def deletar_imagem(imagem_id):
         )
 
         if not check.data:
-            return jsonify({"error": "Imagem nao encontrada"}), 404
+            return jsonify({"error": "Imagem não encontrada"}), 404
 
         storage_path = check.data["storage_path"]
 

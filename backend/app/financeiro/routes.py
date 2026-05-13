@@ -1,17 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 
 financeiro_bp = Blueprint("financeiro", __name__)
-
-
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_clinica(token):
-    user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).single().execute()
-    return user.id, perfil.data["clinica_id"]
 
 
 @financeiro_bp.route("/", methods=["GET"])
@@ -30,7 +21,8 @@ def listar_lancamentos():
             .order("created_at", desc=True)
         )
 
-        status = request.args.get("status")
+        # Corrigido: era "status", agora bate com o query param enviado pelo frontend
+        status = request.args.get("status_pagamento")
         if status:
             query = query.eq("status_pagamento", status)
 
@@ -59,8 +51,6 @@ def criar_lancamento():
             "forma_pagamento": data.get("forma_pagamento"),
             "status_pagamento": data.get("status_pagamento"),
         }
-
-        # Remove keys com valor None para usar defaults do banco
         novo_lancamento = {k: v for k, v in novo_lancamento.items() if v is not None}
 
         result = supabase.table("faturamento").insert(novo_lancamento).execute()
@@ -69,8 +59,8 @@ def criar_lancamento():
         return jsonify({"error": str(e)}), 500
 
 
-@financeiro_bp.route("/<id>", methods=["PUT"])
-def atualizar_lancamento(id):
+@financeiro_bp.route("/<lancamento_id>", methods=["PUT"])
+def atualizar_lancamento(lancamento_id):  # Corrigido: era `id` (builtin do Python)
     token = get_token(request)
     if not token:
         return jsonify({"error": "Não autorizado"}), 401
@@ -85,11 +75,10 @@ def atualizar_lancamento(id):
         if not payload:
             return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
-        # Verifica que o lançamento pertence à clínica antes de atualizar
         check = (
             supabase.table("faturamento")
             .select("id")
-            .eq("id", id)
+            .eq("id", lancamento_id)
             .eq("clinica_id", clinica_id)
             .single()
             .execute()
@@ -101,7 +90,7 @@ def atualizar_lancamento(id):
         result = (
             supabase.table("faturamento")
             .update(payload)
-            .eq("id", id)
+            .eq("id", lancamento_id)
             .eq("clinica_id", clinica_id)
             .execute()
         )

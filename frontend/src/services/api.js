@@ -2,11 +2,11 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 /* --- AUTH --- */
-export async function apiRegistro(nome, email, password) {
+export async function apiRegistro(nome, email, password, papel) {
     const res = await fetch(`${API_URL}/api/auth/registro`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nome, email, password }),
+        body: JSON.stringify({ nome, email, password, papel }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Erro ao criar conta");
@@ -280,7 +280,7 @@ export async function apiCriarPlano(token, payload) {
 export async function apiAtualizarPlanoItem(token, planoId, itemId, payload) {
     const res = await fetch(`${API_URL}/api/planos/${planoId}/itens/${itemId}`, { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erro");
+    if (!res.ok) throw new Error(data.error || "Erro ao atualizar item do plano");
     return data;
 }
 
@@ -288,7 +288,7 @@ export async function apiAtualizarPlanoItem(token, planoId, itemId, payload) {
 export async function apiGetImagens(token, pacienteId) {
     const res = await fetch(`${API_URL}/api/imagens/?paciente_id=${pacienteId}`, { headers: { Authorization: `Bearer ${token}` } });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erro");
+    if (!res.ok) throw new Error(data.error || "Erro ao buscar imagens do paciente");
     return Array.isArray(data) ? data : [];
 }
 
@@ -304,7 +304,9 @@ export async function apiUploadImagem(token, pacienteId, file) {
 
 export async function apiDeletarImagem(token, imagemId) {
     const res = await fetch(`${API_URL}/api/imagens/${imagemId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Erro"); }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao deletar imagem");
+    return data;
 }
 
 /* --- DASHBOARD MÉTRICAS --- */

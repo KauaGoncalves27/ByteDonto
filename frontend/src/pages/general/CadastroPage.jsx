@@ -4,6 +4,13 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiRegistro } from "../../services/api";
 import '../../styles/Auth.css';
 
+/* Mapeia o :type da URL para o papel salvo no banco */
+const TIPO_PARA_PAPEL = {
+    owner: "Dono",
+    employee: "Recepção",
+    specialist: "Especialista",
+};
+
 import EyeOpen from '../../assets/svg/eye_open.svg?react'
 import EyeClose from '../../assets/svg/eye_close.svg?react'
 
@@ -58,9 +65,11 @@ function CadastroPage() {
 
         setLoading(true);
         try {
-            await apiRegistro(form.nome, form.email, form.password);
+            const papel = TIPO_PARA_PAPEL[type] || "Dono";
+            await apiRegistro(form.nome, form.email, form.password, papel);
             setSuccess("Conta criada com sucesso! Redirecionando para o login...");
-            setTimeout(() => navigate("/login"), 2000);
+            // Redireciona para /login/:type (rota válida) em vez de /login (inexistente)
+            setTimeout(() => navigate(`/login/${type}`), 2000);
         } catch (err) {
             setError(err.message || "Erro ao cadastrar.");
         } finally {

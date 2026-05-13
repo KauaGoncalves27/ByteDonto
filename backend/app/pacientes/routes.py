@@ -1,41 +1,13 @@
 from flask import Blueprint, request, jsonify
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 
 pacientes_bp = Blueprint("pacientes", __name__)
 
-
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_clinica(token):
-    """Retorna o clinica_id do usuário autenticado."""
-    user = supabase.auth.get_user(token).user
-    
-    # Consulta segura sem .single() para não quebrar se não existir
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).execute()
-    
-    # FALLBACK DE RECONSTRUÇÃO: Se o banco foi resetado e o usuário apagado das tabelas públicas
-    if not perfil.data:
-        # 1. Cria uma clínica de emergência vinculada a ele
-        clinica = supabase.table("clinicas").insert({
-            "nome_fantasia": "Clínica ByteDonto (Recuperada)", 
-            "dono_id": user.id
-        }).execute()
-        
-        clinica_id = clinica.data[0]["id"]
-        
-        # 2. Re-insere o perfil dele na tabela usuarios
-        supabase.table("usuarios").insert({
-            "id": user.id,
-            "clinica_id": clinica_id,
-            "nome": "Usuário Teste",
-            "papel": "Recepção"
-        }).execute()
-        
-        return user.id, clinica_id
-
-    return user.id, perfil.data[0]["clinica_id"]
+CAMPOS_PACIENTE = {
+    "nome", "email", "telefone_whatsapp", "data_nascimento",
+    "cpf", "rg", "genero", "endereco", "anamnese"
+}
 
 
 @pacientes_bp.route("/", methods=["GET"])
@@ -76,9 +48,13 @@ def criar_paciente():
         _, clinica_id = get_user_clinica(token)
         data = request.get_json()
 
+        nome = (data.get("nome") or "").strip()
+        if not nome:
+            return jsonify({"error": "Nome do paciente é obrigatório"}), 400
+
         novo = {
             "clinica_id": clinica_id,
-            "nome": data.get("nome"),
+            "nome": nome,
             "email": data.get("email"),
             "telefone_whatsapp": data.get("telefone_whatsapp"),
             "data_nascimento": data.get("data_nascimento"),
@@ -105,13 +81,20 @@ def atualizar_paciente(paciente_id):
         _, clinica_id = get_user_clinica(token)
         data = request.get_json()
 
+        # Whitelist de campos para impedir atualização de id, clinica_id, etc.
+        payload = {k: v for k, v in data.items() if k in CAMPOS_PACIENTE}
+        if not payload:
+            return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
+
         result = (
             supabase.table("pacientes")
-            .update(data)
+            .update(payload)
             .eq("id", paciente_id)
             .eq("clinica_id", clinica_id)
             .execute()
         )
+        if not result.data:
+            return jsonify({"error": "Paciente não encontrado"}), 404
         return jsonify(result.data[0]), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

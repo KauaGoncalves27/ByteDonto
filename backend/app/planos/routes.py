@@ -1,28 +1,19 @@
 from flask import Blueprint, request, jsonify
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 
 planos_bp = Blueprint("planos", __name__)
-
-
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_clinica(token):
-    user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).single().execute()
-    return user.id, perfil.data["clinica_id"]
 
 
 @planos_bp.route("/", methods=["GET"])
 def listar_planos():
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     paciente_id = request.args.get("paciente_id")
     if not paciente_id:
-        return jsonify({"error": "paciente_id e obrigatorio"}), 400
+        return jsonify({"error": "paciente_id é obrigatório"}), 400
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -54,7 +45,7 @@ def listar_planos():
 def criar_plano():
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         user_id, clinica_id = get_user_clinica(token)
@@ -62,7 +53,7 @@ def criar_plano():
 
         paciente_id = data.get("paciente_id")
         if not paciente_id:
-            return jsonify({"error": "paciente_id e obrigatorio"}), 400
+            return jsonify({"error": "paciente_id é obrigatório"}), 400
 
         itens_payload = data.get("itens", [])
 
@@ -86,18 +77,21 @@ def criar_plano():
         plano_id = plano["id"]
 
         itens_inseridos = []
-        for idx, item in enumerate(itens_payload):
-            novo_item = {
-                "plano_id": plano_id,
-                "procedimento": item.get("procedimento"),
-                "dente": item.get("dente"),
-                "quantidade": item.get("quantidade", 1),
-                "valor_unitario": item.get("valor_unitario", 0),
-                "ordem": idx,
-            }
-            novo_item = {k: v for k, v in novo_item.items() if v is not None}
-            item_result = supabase.table("plano_itens").insert(novo_item).execute()
-            itens_inseridos.append(item_result.data[0])
+        if itens_payload:
+            # Bulk insert de todos os itens em uma única query
+            itens_bulk = [
+                {k: v for k, v in {
+                    "plano_id": plano_id,
+                    "procedimento": item.get("procedimento"),
+                    "dente": item.get("dente"),
+                    "quantidade": item.get("quantidade", 1),
+                    "valor_unitario": item.get("valor_unitario", 0),
+                    "ordem": idx,
+                }.items() if v is not None}
+                for idx, item in enumerate(itens_payload)
+            ]
+            itens_result = supabase.table("plano_itens").insert(itens_bulk).execute()
+            itens_inseridos = itens_result.data
 
         plano["itens"] = itens_inseridos
         return jsonify(plano), 201
@@ -109,7 +103,7 @@ def criar_plano():
 def atualizar_plano(plano_id):
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -119,7 +113,7 @@ def atualizar_plano(plano_id):
         payload = {k: v for k, v in data.items() if k in CAMPOS_PERMITIDOS}
 
         if not payload:
-            return jsonify({"error": "Nenhum campo valido para atualizar"}), 400
+            return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
         check = (
             supabase.table("planos_tratamento")
@@ -131,7 +125,7 @@ def atualizar_plano(plano_id):
         )
 
         if not check.data:
-            return jsonify({"error": "Plano nao encontrado"}), 404
+            return jsonify({"error": "Plano não encontrado"}), 404
 
         result = (
             supabase.table("planos_tratamento")
@@ -149,7 +143,7 @@ def atualizar_plano(plano_id):
 def atualizar_item(plano_id, item_id):
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -159,9 +153,8 @@ def atualizar_item(plano_id, item_id):
         payload = {k: v for k, v in data.items() if k in CAMPOS_PERMITIDOS}
 
         if not payload:
-            return jsonify({"error": "Nenhum campo valido para atualizar"}), 400
+            return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
-        # Confirm the plano belongs to the clinic before touching its items
         check = (
             supabase.table("planos_tratamento")
             .select("id")
@@ -172,7 +165,7 @@ def atualizar_item(plano_id, item_id):
         )
 
         if not check.data:
-            return jsonify({"error": "Plano nao encontrado"}), 404
+            return jsonify({"error": "Plano não encontrado"}), 404
 
         result = (
             supabase.table("plano_itens")
@@ -183,7 +176,7 @@ def atualizar_item(plano_id, item_id):
         )
 
         if not result.data:
-            return jsonify({"error": "Item nao encontrado"}), 404
+            return jsonify({"error": "Item não encontrado"}), 404
 
         return jsonify(result.data[0]), 200
     except Exception as e:
@@ -194,7 +187,7 @@ def atualizar_item(plano_id, item_id):
 def deletar_plano(plano_id):
     token = get_token(request)
     if not token:
-        return jsonify({"error": "Nao autorizado"}), 401
+        return jsonify({"error": "Não autorizado"}), 401
 
     try:
         _, clinica_id = get_user_clinica(token)
@@ -209,7 +202,7 @@ def deletar_plano(plano_id):
         )
 
         if not check.data:
-            return jsonify({"error": "Plano nao encontrado"}), 404
+            return jsonify({"error": "Plano não encontrado"}), 404
 
         supabase.table("planos_tratamento").delete().eq("id", plano_id).eq("clinica_id", clinica_id).execute()
         return jsonify({"message": "Plano deletado com sucesso"}), 200

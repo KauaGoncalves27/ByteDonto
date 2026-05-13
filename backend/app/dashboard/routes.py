@@ -1,18 +1,9 @@
 from flask import Blueprint, request, jsonify
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 from datetime import date
 
 dashboard_bp = Blueprint("dashboard", __name__)
-
-
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
-
-
-def get_user_clinica(token):
-    user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).single().execute()
-    return user.id, perfil.data["clinica_id"]
 
 
 @dashboard_bp.route("/metricas", methods=["GET"])

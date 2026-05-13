@@ -1,10 +1,15 @@
 from flask import Blueprint, request, jsonify
 from app.database import supabase
+from app.utils import get_token, get_user_clinica
 
 clinicas_bp = Blueprint("clinicas", __name__)
 
-def get_token(req):
-    return req.headers.get("Authorization", "").replace("Bearer ", "")
+CAMPOS_CLINICA = {
+    "nome", "nome_fantasia", "cnpj", "razao_social", "resumo",
+    "telefone", "whatsapp", "instagram", "facebook",
+    "endereco", "cidade", "estado", "pais", "cep"
+}
+
 
 @clinicas_bp.route("/", methods=["POST"])
 def criar_clinica():
@@ -15,19 +20,22 @@ def criar_clinica():
     try:
         user_response = supabase.auth.get_user(token)
         user_id = user_response.user.id
-        
+
         data = request.get_json()
-        
-        # 1. Insert clinic into database
-        result_clinica = supabase.table("clinicas").insert(data).execute()
+
+        # Whitelist de campos permitidos e sempre define dono_id a partir do token
+        payload = {k: v for k, v in data.items() if k in CAMPOS_CLINICA}
+        payload["dono_id"] = user_id
+
+        result_clinica = supabase.table("clinicas").insert(payload).execute()
         nova_clinica_id = result_clinica.data[0]["id"]
-        
-        # 2. Update the user's profile to link the new clinic
+
         supabase.table("usuarios").update({"clinica_id": nova_clinica_id}).eq("id", user_id).execute()
 
         return jsonify(result_clinica.data[0]), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @clinicas_bp.route("/", methods=["GET"])
 def listar_clinicas():
@@ -59,10 +67,17 @@ def get_clinica(clinica_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
+        _, user_clinica_id = get_user_clinica(token)
+
+        # Garante que o usuário só acessa a própria clínica
+        if clinica_id != user_clinica_id:
+            return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
+
         result = supabase.table("clinicas").select("*").eq("id", clinica_id).single().execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @clinicas_bp.route("/<clinica_id>", methods=["PUT"])
 def atualizar_clinica(clinica_id):
@@ -71,15 +86,24 @@ def atualizar_clinica(clinica_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
+        _, user_clinica_id = get_user_clinica(token)
+
+        # Garante que o usuário só edita a própria clínica
+        if clinica_id != user_clinica_id:
+            return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
+
         data = request.get_json()
-        
-        # update directly
+        payload = {k: v for k, v in data.items() if k in CAMPOS_CLINICA}
+
+        if not payload:
+            return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
+
         result = (
             supabase.table("clinicas")
-            .update(data)
+            .update(payload)
             .eq("id", clinica_id)
             .execute()
         )
-        return jsonify(result.data), 200
+        return jsonify(result.data[0] if result.data else {}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

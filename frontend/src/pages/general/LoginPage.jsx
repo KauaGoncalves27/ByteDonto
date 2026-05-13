@@ -41,13 +41,35 @@ function LoginPage() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    /* Mapeia o :type da URL para o papel esperado no banco */
+    const TYPE_TO_PAPEL = {
+        owner:      "Dono",
+        employee:   "Recepção",
+        specialist: "Especialista",
+    };
+
+    /* Verifica se o papel do usuário bate com o tipo de login atual */
+    function validarTipoDeConta(perfil) {
+        const papelEsperado = TYPE_TO_PAPEL[type];
+        const papelDoUsuario = perfil?.perfil?.papel;
+
+        if (!papelDoUsuario || papelDoUsuario !== papelEsperado) {
+            const nomeTipo = validTypes[type]?.badge || type;
+            setError(
+                `Esta conta não está cadastrada como ${nomeTipo}. ` +
+                `Por favor, use a tela de login correspondente ao seu perfil.`
+            );
+            return false;
+        }
+        return true;
+    }
+
     /* Função de Roteamento Inteligente */
     const routBasedOnRole = (userData) => {
-        // Se o usuário tiver um perfil definido no banco...
         if (userData && userData.perfil && userData.perfil.papel) {
             const role = userData.perfil.papel;
             if (role === "Recepção") {
-                navigate("/reception/dashboard");
+                navigate("/employee/dashboard");
             } else if (role === "Especialista") {
                 navigate("/specialist/dashboard");
             } else {
@@ -56,7 +78,6 @@ function LoginPage() {
                 navigate(semClinica ? "/owner/onboarding" : "/owner/clinic");
             }
         } else {
-            // Conta nova ou sem papel definido
             navigate("/owner/onboarding");
         }
     };
@@ -67,6 +88,7 @@ function LoginPage() {
             if (session) {
                 apiMe(session.access_token)
                     .then((perfil) => {
+                        if (!validarTipoDeConta(perfil)) return;
                         login(session.access_token, perfil);
                         routBasedOnRole(perfil);
                     })
@@ -84,6 +106,10 @@ function LoginPage() {
         try {
             const { access_token } = await apiLogin(email, password);
             const perfil = await apiMe(access_token);
+
+            // Bloqueia se o papel da conta não bater com o tipo de login atual
+            if (!validarTipoDeConta(perfil)) return;
+
             login(access_token, perfil);
             routBasedOnRole(perfil);
         } catch (err) {
@@ -99,8 +125,10 @@ function LoginPage() {
             setError("");
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: "google",
-                options: { 
-                    redirectTo: window.location.origin + "/login",
+                options: {
+                    // Redireciona para /login/owner para que o useEffect detecte
+                    // a sessão OAuth e roteie para o dashboard correto via routBasedOnRole
+                    redirectTo: window.location.origin + "/login/owner",
                     queryParams: {
                         prompt: 'select_account'
                     }
