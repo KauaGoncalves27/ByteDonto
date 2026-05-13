@@ -43,10 +43,10 @@ function ListPatients() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
             
-            <main className="mainBar reception">
+            <main className="mainBar employee">
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem"}}>
                     <div>
                         <h1 style={{margin: '0 0 0.5rem 0', color: 'var(--PrimaryColorsTheme)', fontSize: '28px'}}>Pacientes e Prontuários</h1>

@@ -112,10 +112,10 @@ function ReceptionDashboard() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
 
-            <main className="mainBar reception" style={{ position: 'relative' }}>
+            <main className="mainBar employee" style={{ position: 'relative' }}>
 
                 {/* ---------- MODAL DE AGENDAMENTO ---------- */}
                 {showAgendamento && (

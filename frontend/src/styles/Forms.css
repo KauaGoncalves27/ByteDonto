@@ -6,7 +6,7 @@ form .sec-title {
     font-weight: 700;
     color: var(--PrimaryColorsTheme);
     padding-bottom: 0.5rem;
-    border-bottom: 2px solid rgba(9, 108, 238, 0.6);
+    border-bottom: 2px solid var(--PrimaryColors);
 }
 
 form .forms-section:first-child .sec-title {
@@ -91,9 +91,6 @@ form textarea {
     max-width: 500px;
 }
 
-.forms-hover .forms-card input {
-    width: 100%;
-}
 
 @media (max-width: 765px) {
     form .forms-section {
@@ -104,5 +101,9 @@ form textarea {
     form .flex-inpus {
         flex-direction: column;
         gap: 0;
+    }
+
+    form .field {
+        flex: none;
     }
 }

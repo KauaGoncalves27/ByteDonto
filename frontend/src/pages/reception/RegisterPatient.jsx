@@ -117,10 +117,10 @@ function RegisterPatient() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
             
-            <main className="mainBar reception register">
+            <main className="mainBar employee register">
                 <p>
                     <Link className="text75" to="/employee/dashboard">← Voltar para Dashboard</Link>
                 </p>
