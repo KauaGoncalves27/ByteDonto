@@ -111,10 +111,10 @@ function ReceptionDashboard() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
 
-            <main className="mainBar reception" style={{ position: 'relative' }}>
+            <main className="mainBar employee" style={{ position: 'relative' }}>
 
                 {/* ---------- MODAL DE AGENDAMENTO ---------- */}
                 {showAgendamento && (
@@ -162,7 +162,7 @@ function ReceptionDashboard() {
                                                 ))}
                                             </ul>
                                         )}
-                                        <Link to="/reception/patient/register" style={{ color: 'var(--PrimaryColorsTheme)', fontSize: '13px', textDecoration: 'underline', marginTop: '12px', display: 'inline-block', fontWeight: 'bold' }}>
+                                        <Link to="/employee/patient/register" style={{ color: 'var(--PrimaryColorsTheme)', fontSize: '13px', textDecoration: 'underline', marginTop: '12px', display: 'inline-block', fontWeight: 'bold' }}>
                                             + Paciente não encontrado? (Cadastrar)
                                         </Link>
                                     </div>
@@ -252,7 +252,7 @@ function ReceptionDashboard() {
                                 </ul>
                             )}
                         </div>
-                        <Link to="/reception/patients" className="submit" style={{ padding: '16px 32px', textAlign: 'center' }}>Acessar Ficha</Link>
+                        <Link to="/employee/patients" className="submit" style={{ padding: '16px 32px', textAlign: 'center' }}>Acessar Ficha</Link>
                     </div>
                 </div>
 

@@ -106,7 +106,7 @@ function RegisterPatient() {
         try {
             await apiCriarPaciente(token, payload);
             alert("Paciente cadastrado com sucesso!");
-            navigate("/reception/patients");
+            navigate("/employee/patients");
         } catch (err) {
             alert(`Erro: ${err.message}`);
             console.error(err);
@@ -117,12 +117,12 @@ function RegisterPatient() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
             
-            <main className="mainBar reception register">
+            <main className="mainBar employee register">
                 <p>
-                    <Link className="text75" to="/reception/dashboard">← Voltar para Dashboard</Link>
+                    <Link className="text75" to="/employee/dashboard">← Voltar para Dashboard</Link>
                 </p>
 
                 <div className="camp-clinic camp-register" style={{marginTop: '1rem'}}>

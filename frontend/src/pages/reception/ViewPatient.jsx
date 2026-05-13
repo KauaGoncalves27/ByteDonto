@@ -44,9 +44,9 @@ export default function ViewPatient() {
     if (loading) {
         return (
             <>
-                <Section type_styles="reception" />
-                <SideBar opc={opc_bar} styles="reception" />
-                <main className="mainBar reception"><p>Carregando perfil do paciente...</p></main>
+                <Section type_styles="employee" />
+                <SideBar opc={opc_bar} styles="employee" />
+                <main className="mainBar employee"><p>Carregando perfil do paciente...</p></main>
             </>
         );
     }
@@ -54,9 +54,9 @@ export default function ViewPatient() {
     if (!paciente) {
         return (
             <>
-                <Section type_styles="reception" />
-                <SideBar opc={opc_bar} styles="reception" />
-                <main className="mainBar reception"><p>Paciente não encontrado. Retorne à listagem.</p></main>
+                <Section type_styles="employee" />
+                <SideBar opc={opc_bar} styles="employee" />
+                <main className="mainBar employee"><p>Paciente não encontrado. Retorne à listagem.</p></main>
             </>
         );
     }
@@ -66,10 +66,10 @@ export default function ViewPatient() {
 
     return (
         <>
-            <Section type_styles="reception" />
-            <SideBar opc={opc_bar} styles="reception" />
+            <Section type_styles="employee" />
+            <SideBar opc={opc_bar} styles="employee" />
             
-            <main className="mainBar reception">
+            <main className="mainBar employee">
                 {/* CABEÇALHO DO PRONTUÁRIO */}
                 <div style={{background: 'var(--PrimaryColorsTheme)', borderRadius: '24px', padding: '2rem', color: 'white', display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '2rem', boxShadow: '0 10px 25px rgba(22, 163, 74, 0.2)'}}>
                     <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px'}}>
