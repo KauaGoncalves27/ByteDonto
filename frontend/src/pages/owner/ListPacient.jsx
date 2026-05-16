@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { apiGetPacientes } from "../../services/api";
 import { formatCPF, formatPhone } from "../../utils/formatters";
 import Section from "../../components/section/SectionAuth";
 import SideBar from "../../components/bar/SideBar";
-import { useReceptionSidebar } from "../../hooks/useSidebar";
+import { useOwnerSidebar } from "../../hooks/useSidebar";
 import '../../styles/clinic.css';
 
 /* MAIN COMPONENT */
 function ListPacient() {
     const { token } = useAuth();
+    const { id_clinic } = useParams();
     const [pacientes, setPacientes] = useState([]);
     const [busca, setBusca] = useState("");
     const [loading, setLoading] = useState(true);
 
-    // Menu da recepção
-    const opc_bar = useReceptionSidebar("patients");
+    const opc_bar = useOwnerSidebar("patients");
 
     useEffect(() => {
         const fetchPacientes = async () => {
@@ -53,7 +53,7 @@ function ListPacient() {
                         <p className="text75">Listagem completa de todos os pacientes da clinica</p>
                     </div>
                     <div>
-                        <Link to="/reception/patient/register" style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                        <Link to={`/owner/pacients/${id_clinic}/register`} style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                             + Cadastrar Novo Paciente
                         </Link>
                     </div>

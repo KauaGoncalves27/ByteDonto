@@ -14,6 +14,7 @@ import OwnerEditClinic from "../pages/owner/EditClinic";
 
 import OwnerPacientClinic from "../pages/owner/PacientClinic";
 import OwnerListPacient from "../pages/owner/ListPacient";
+import OwnerRegisterPacient from "../pages/owner/RegisterPacient";
 
 import BindClinic from "../pages/owner/BindClinic";
 import OwnerFinancial from "../pages/owner/Financial";
@@ -75,6 +76,7 @@ export function AppRoutes() {
 
           <Route path="/owner/pacients" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerPacientClinic /></PrivateRoute>} />
           <Route path="/owner/pacients/:id_clinic" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerListPacient /></PrivateRoute>} />
+          <Route path="/owner/pacients/:id_clinic/register" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerRegisterPacient /></PrivateRoute>} />
 
           <Route path="/owner/onboarding" element={<PrivateRoute allowedRoles={["Dono"]}><Onboarding /></PrivateRoute>} />
           <Route path="/owner/financial" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerFinancial role="owner" /></PrivateRoute>} />
