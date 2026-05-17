@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
-import { apiGetPacientes } from "../../../services/api";
+import { apiGetPacientes, apiGetClinic } from "../../../services/api";
 import { formatCPF, formatPhone } from "../../../utils/formatters";
 import Section from "../../../components/section/SectionAuth";
 import SideBar from "../../../components/bar/SideBar";
@@ -15,6 +15,7 @@ function ListPacient() {
     const [pacientes, setPacientes] = useState([]);
     const [busca, setBusca] = useState("");
     const [loading, setLoading] = useState(true);
+    const [clinica, setClinica] = useState(null);
 
     const opc_bar = useOwnerSidebar("patients");
 
@@ -41,6 +42,38 @@ function ListPacient() {
         );
     });
 
+    useEffect(() => {
+
+        async function carregarClinica() {
+
+            try {
+
+                const data = await apiGetClinic(
+                    token,
+                    id_clinic
+                );
+
+                setClinica(data);
+
+            } catch (err) {
+
+                console.error(
+                    "Erro ao carregar clínica",
+                    err
+                );
+
+            }
+
+        }
+
+        if (token && id_clinic) {
+
+            carregarClinica();
+
+        }
+
+    }, [token, id_clinic]);
+
     return (
         <>
             <Section type_styles="owner" />
@@ -50,7 +83,7 @@ function ListPacient() {
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem"}}>
                     <div>
                         <h1 style={{margin: '0 0 0.5rem 0', color: 'var(--PrimaryColorsTheme)', fontSize: '28px'}}>Pacientes</h1>
-                        <p className="text75">Listagem completa de todos os pacientes da clinica</p>
+                        <p className="text75">Listagem completa de todos os pacientes da clinica {clinica?.nome}</p>
                     </div>
                     <div>
                         <Link to={`/owner/pacients/${id_clinic}/register`} style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>

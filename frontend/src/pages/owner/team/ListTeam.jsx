@@ -1,14 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiGetEquipe, apiCriarMembro, apiRemoverMembro, apiAtualizarMembro, apiAtualizarPermissoes } from "../../services/api";
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import { apiGetMetricas } from "../../services/api";
-import "../../styles/clinic.css";
-import "../../styles/Forms.css";
-import "../../styles/Table.css";
+import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import { apiGetEquipe, apiCriarMembro, apiRemoverMembro, apiAtualizarMembro, apiAtualizarPermissoes, apiGetClinic } from "../../../services/api";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+import { apiGetMetricas } from "../../../services/api";
+
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+
+import "../../../styles/clinic.css";
+import "../../../styles/Forms.css";
+import "../../../styles/Table.css";
 
 const PAPEIS = ["Especialista", "Recepção"];
 
@@ -53,6 +55,7 @@ function MetricasSkeleton() {
 
 function BindClinic() {
     const { token } = useAuth();
+    const { id_clinic } = useParams();
     const opc_bar = useOwnerSidebar("team");
 
     const [equipe, setEquipe] = useState([]);
@@ -60,6 +63,7 @@ function BindClinic() {
     const [erro, setErro] = useState(null);
     const [loadingMetricas, setLoadingMetricas] = useState(true);
     const [metricas, setMetricas] = useState(null);
+    const [clinica, setClinica] = useState(null);
 
     // Modal de criação
     const [showForm, setShowForm] = useState(false);
@@ -210,6 +214,38 @@ function BindClinic() {
     const membrosNaoDono = equipe.filter(m => m.papel !== "Dono");
     const dono = equipe.find(m => m.papel === "Dono");
 
+    useEffect(() => {
+
+        async function carregarClinica() {
+
+            try {
+
+                const data = await apiGetClinic(
+                    token,
+                    id_clinic
+                );
+
+                setClinica(data);
+
+            } catch (err) {
+
+                console.error(
+                    "Erro ao carregar clínica",
+                    err
+                );
+
+            }
+
+        }
+
+        if (token && id_clinic) {
+
+            carregarClinica();
+
+        }
+
+    }, [token, id_clinic]);
+
     return (
         <>
             <Section type_styles="owner" />
@@ -220,9 +256,9 @@ function BindClinic() {
                 <div className="forms-hover owner" style={{ display: "flex" }}>
                     <div className="forms-card">
                         <div style={{ marginBottom: "1.5rem" }}>
-                            <h2 style={{ margin: 0, color: "var(--PrimaryColorsTheme)" }}>Adicionar Membro</h2>
+                            <h2 style={{ margin: 0, color: "var(--PrimaryColorsTheme)" }}>Convidar Novo Membro</h2>
                             <p className="text75" style={{ margin: "0.5rem 0 0 0", fontSize: "14px" }}>
-                                Crie o acesso para um profissional da sua clínica.
+                                Adicione um profissional habilitado à sua clínica.
                             </p>
                         </div>
 
@@ -402,8 +438,8 @@ function BindClinic() {
                 <div className="camp-clinic camp-register">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2em" }}>
                         <div>
-                            <h1 style={{ margin: "0 0 0.5rem 0" }}>Equipe da Clínica</h1>
-                            <p className="text75">Gerencie os acessos dos profissionais. Você define o login e o nível de permissão de cada membro.</p>
+                            <h1 style={{ margin: "0 0 0.5rem 0" }}>Colaboradores e Convites</h1>
+                            <p className="text75">Gerencie os acessos e convites da clínica {clinica?.nome}</p>
                         </div>
                         <button className="submit" onClick={abrirForm} style={{ padding: "12px 24px", fontSize: "15px" }}>
                             + Adicionar Membro
