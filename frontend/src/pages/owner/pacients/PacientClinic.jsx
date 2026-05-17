@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { apiGetClinics } from "../../services/api";
+import { useAuth } from "../../../context/AuthContext";
+import { apiGetClinics } from "../../../services/api";
 
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import CampNotList from "../../components/camp/NotList";
-import CampList from "../../components/camp/ListClinic";
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+import CampNotList from "../../../components/camp/NotList";
+import CampList from "../../../components/camp/ListClinic";
 
-import IMG from "../../assets/img/icon01.png";
+import IMG from "../../../assets/img/icon01.png";
 
-import { useOwnerSidebar } from "../../hooks/useSidebar";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
 
-import "../../styles/clinic.css";
-import "../../styles/Input.css";
+import "../../../styles/clinic.css";
+import "../../../styles/Input.css";
 
 function PacientClinic() {
 

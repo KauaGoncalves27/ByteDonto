@@ -68,17 +68,22 @@ function LoginPage() {
     const routBasedOnRole = (userData) => {
         if (userData && userData.perfil && userData.perfil.papel) {
             const role = userData.perfil.papel;
+
             if (role === "Recepção") {
                 navigate("/employee/dashboard");
+
             } else if (role === "Especialista") {
                 navigate("/specialist/dashboard");
+
+            } else if (role === "Dono") {
+                navigate("/owner/clinic");
+
             } else {
-                // "Dono" — redireciona para onboarding se ainda não tem clínica
-                const semClinica = !userData.perfil.clinica_id;
-                navigate(semClinica ? "/owner/onboarding" : "/owner/clinic");
+                navigate("/");
             }
+
         } else {
-            navigate("/owner/onboarding");
+            navigate("/");
         }
     };
 

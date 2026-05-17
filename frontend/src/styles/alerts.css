@@ -1,0 +1,98 @@
+.alert-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+}
+
+.alert-card {
+    width: 100%;
+    max-width: 520px;
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    animation: alertShow .18s ease;
+}
+
+.alert-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.alert-title {
+    margin: 0 0 1rem 0;
+    font-size: var(--H2Text);
+    font-weight: 800;
+    color: var(--PrimaryColorsTheme);
+}
+
+.alert-title.error {
+    color: #EF4444;
+}
+
+.alert-title.success {
+    color: #059669;
+}
+
+.alert-text {
+    margin: 0;
+    font-size: var(--PText);
+    line-height: 1.6;
+    color: var(--TextColor75);
+}
+
+.alert-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.alert-btn {
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: var(--PText);
+    background: var(--PrimaryColorsTheme);
+    color: white;
+}
+
+.alert-btn.secondary {
+    background: var(--PrimaryColors);
+    color: var(--ThemeColor);
+}
+
+.alert-btn.secondary:hover {
+    background: var(--PrimaryColorsTheme);
+}
+
+.alert-btn.danger {
+    background: var(--NotPrimaryColors);
+    color: var(--ThemeColor);
+}
+
+.alert-btn.danger:hover {
+    background: var(--NotPrimaryColorsTheme);
+}
+
+@keyframes alertShow {
+    from {
+        opacity: 0;
+        transform: scale(.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiGetClinic } from "../../services/api";
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import Card from "../../components/card/CardInfo";
-import IMG from "../../assets/img/icon01.png";
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import ButtonP from "../../components/buttons/ButtonsRediText";
-import '../../styles/clinic.css';
+import { useAuth } from "../../../context/AuthContext";
+import { apiGetClinic } from "../../../services/api";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+import Card from "../../../components/card/CardInfo";
+import IMG from "../../../assets/img/icon01.png";
+import ButtonP from "../../../components/buttons/ButtonsRediText";
+
+import '../../../styles/clinic.css';
 
 function ViewClinic() {
     const { id } = useParams();

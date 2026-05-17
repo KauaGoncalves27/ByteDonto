@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiCreateClinic } from "../../services/api";
-import Section from "../../components/section/SectionAuth"
-import SideBar from "../../components/bar/SideBar"
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import '../../styles/clinic.css';
-import '../../styles/Forms.css';
+import { useAuth } from "../../../context/AuthContext";
+import { apiCreateClinic } from "../../../services/api";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+
+import Section from "../../../components/section/SectionAuth"
+import SideBar from "../../../components/bar/SideBar"
+import AlertError from "../../../components/alerts/AlertError";
+import AlertSuccess from "../../../components/alerts/AlertSuccess";
+
+import '../../../styles/clinic.css';
+import '../../../styles/Forms.css';
 
 function formatCNPJ(value) {
     const digits = value.replace(/\D/g, '').slice(0, 14);
@@ -19,7 +23,7 @@ function formatCNPJ(value) {
 
 /* MAIN COMPONENT */
 function RegisterClinic() {
-    const { token } = useAuth();
+    const { token, refreshUser } = useAuth();
     const navigate = useNavigate();
     
     const [loading, setLoading] = useState(false);
@@ -42,6 +46,12 @@ function RegisterClinic() {
 
     const opc_bar = useOwnerSidebar("clinic");
 
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const [showError, setShowError] = useState(false);
+
+    const [errorMessage, setErrorMessage] = useState("");
+
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
@@ -61,12 +71,24 @@ function RegisterClinic() {
         };
 
         try {
-            const clinic = await apiCreateClinic(token, newClinic);
-            alert("Clínica registrada com sucesso!");
-            navigate(`/owner/clinic/`);
+            await apiCreateClinic(
+                token,
+                newClinic
+            );
+
+            await refreshUser();
+
+            setShowSuccess(true);
+
+            navigate("/owner/clinic");
+
         } catch (err) {
             setError(err.message || "Erro ao registrar clínica.");
-            alert(err.message || "Erro ao registrar clínica.");
+            setErrorMessage(
+                err.message ||
+                "Erro ao registrar clínica."
+            );
+            setShowError(true);
         } finally {
             setLoading(false);
         }
@@ -76,6 +98,36 @@ function RegisterClinic() {
         <>
             <Section type_styles="owner" />
             <SideBar opc={opc_bar} styles="owner" />
+
+            {
+                showSuccess && (
+
+                    <AlertSuccess
+                        text="Clínica registrada com sucesso!"
+                        onClose={() => {
+
+                            setShowSuccess(false);
+
+                            navigate("/owner/clinic");
+
+                        }}
+                    />
+
+                )
+            }
+
+            {
+                showError && (
+
+                    <AlertError
+                        text={errorMessage}
+                        onClose={() =>
+                            setShowError(false)
+                        }
+                    />
+
+                )
+            }
             
             <main className="mainBar owner register">
                 <p>
@@ -236,7 +288,7 @@ function RegisterClinic() {
                                     className="submit"
                                     disabled={loading}
                                 >
-                                    {loading ? "Salvando..." : "Salvar Configurações"}
+                                    {loading ? "Salvando..." : "Salvar Clínica"}
                                 </button>
                             </div>
                         </form>

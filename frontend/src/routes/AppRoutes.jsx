@@ -7,14 +7,14 @@ import LandingPage from "../pages/general/LandingPage";
 import LoginPage from "../pages/general/LoginPage";
 import CadastroPage from "../pages/general/CadastroPage";
 
-import OwnerListClinic from "../pages/owner/ListClinic";
-import OwnerRegisterClinic from "../pages/owner/RegisterClinic";
-import OwnerViewClinic from "../pages/owner/ViewClinic";
-import OwnerEditClinic from "../pages/owner/EditClinic";
+import OwnerListClinic from "../pages/owner/clinic/ListClinic";
+import OwnerRegisterClinic from "../pages/owner/clinic/RegisterClinic";
+import OwnerViewClinic from "../pages/owner/clinic/ViewClinic";
+import OwnerEditClinic from "../pages/owner/clinic/EditClinic";
 
-import OwnerPacientClinic from "../pages/owner/PacientClinic";
-import OwnerListPacient from "../pages/owner/ListPacient";
-import OwnerRegisterPacient from "../pages/owner/RegisterPacient";
+import OwnerPacientClinic from "../pages/owner/pacients/PacientClinic";
+import OwnerListPacient from "../pages/owner/pacients/ListPacient";
+import OwnerRegisterPacient from "../pages/owner/pacients/RegisterPacient";
 
 import BindClinic from "../pages/owner/BindClinic";
 import OwnerFinancial from "../pages/owner/Financial";
@@ -78,7 +78,6 @@ export function AppRoutes() {
           <Route path="/owner/pacients/:id_clinic" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerListPacient /></PrivateRoute>} />
           <Route path="/owner/pacients/:id_clinic/register" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerRegisterPacient /></PrivateRoute>} />
 
-          <Route path="/owner/onboarding" element={<PrivateRoute allowedRoles={["Dono"]}><Onboarding /></PrivateRoute>} />
           <Route path="/owner/financial" element={<PrivateRoute allowedRoles={["Dono"]}><OwnerFinancial role="owner" /></PrivateRoute>} />
 
           {/* ROTAS DO ESPECIALISTA (DENTISTA) */}

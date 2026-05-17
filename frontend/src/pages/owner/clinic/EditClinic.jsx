@@ -1,13 +1,15 @@
 /* IMPORTS OF COMPONENTS */
 import { useState, useEffect } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiGetClinic, apiUpdateClinic } from "../../services/api";
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import '../../styles/clinic.css';
-import '../../styles/Forms.css';
+import { useAuth } from "../../../context/AuthContext";
+import { apiGetClinic, apiUpdateClinic } from "../../../services/api";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+
+import '../../../styles/clinic.css';
+import '../../../styles/Forms.css';
 
 function formatCNPJ(value) {
     const digits = value.replace(/\D/g, '').slice(0, 14);

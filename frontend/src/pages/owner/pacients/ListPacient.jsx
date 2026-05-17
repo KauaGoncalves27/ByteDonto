@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiGetPacientes } from "../../services/api";
-import { formatCPF, formatPhone } from "../../utils/formatters";
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import '../../styles/clinic.css';
+import { useAuth } from "../../../context/AuthContext";
+import { apiGetPacientes } from "../../../services/api";
+import { formatCPF, formatPhone } from "../../../utils/formatters";
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+import '../../../styles/clinic.css';
 
 /* MAIN COMPONENT */
 function ListPacient() {

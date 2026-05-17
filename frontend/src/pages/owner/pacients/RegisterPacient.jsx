@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { apiCriarPaciente } from "../../services/api";
-import { maskCPF, maskPhone, maskRG } from "../../utils/formatters";
-import Section from "../../components/section/SectionAuth";
-import SideBar from "../../components/bar/SideBar";
-import { useOwnerSidebar } from "../../hooks/useSidebar";
-import '../../styles/clinic.css';
-import '../../styles/Forms.css';
+import { useAuth } from "../../../context/AuthContext";
+import { apiCriarPaciente } from "../../../services/api";
+import { maskCPF, maskPhone, maskRG } from "../../../utils/formatters";
+import Section from "../../../components/section/SectionAuth";
+import SideBar from "../../../components/bar/SideBar";
+import { useOwnerSidebar } from "../../../hooks/useSidebar";
+import '../../../styles/clinic.css';
+import '../../../styles/Forms.css';
 
 /* MAIN COMPONENT */
 function RegisterPacient() {
