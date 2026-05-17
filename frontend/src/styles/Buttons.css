@@ -106,3 +106,16 @@ button.bar p {
     font-size: 14px;
     color: inherit;
 }
+
+button.notification-btn {
+    background-color: transparent;
+    border-radius: 100%;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    padding: 0.75em 0.75em 0.5em 0.75em;
+    margin-left: 1.5em;
+}
+
+button.notification-btn svg {
+    width: 2.5em;
+    height: 2.5em;
+}

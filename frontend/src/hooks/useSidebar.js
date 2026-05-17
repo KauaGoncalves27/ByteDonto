@@ -31,13 +31,6 @@ function withSelect(items, activeId) {
 
 export function useOwnerSidebar(activeId) {
     const { user } = useAuth();
-
-    /*
-        Regra:
-        - Sem clínica cadastrada → apenas "Clínica"
-        - Com clínica cadastrada → sidebar completo
-    */
-
     const possuiClinica = !!user?.perfil?.clinica_id;
 
     const items = possuiClinica

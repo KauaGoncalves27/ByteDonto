@@ -1,10 +1,12 @@
 /* IMPORTS OF COMPONENTS */
 import { useState, useEffect } from "react";
-
 import { apiMe } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
-import '../../styles/Section.css'
+import Img from "../../assets/svg/bell.svg?react";
+
+import '../../styles/Section.css';
+import '../../styles/Buttons.css';
 
 /* MAIN COMPONENT */
 function SectionAuth({ type_styles }) {
@@ -26,6 +28,10 @@ function SectionAuth({ type_styles }) {
             </h1>
 
             <div className="topbar-actions">
+
+                <button className="notification-btn">
+                    <Img className="icon-notification" />
+                </button>
 
                 <div className="user-profile">
 
