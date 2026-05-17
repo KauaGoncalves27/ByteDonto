@@ -140,7 +140,7 @@ function RegisterClinic() {
 
                         <form onSubmit={handleSubmit} style={{marginTop: '2rem'}}>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Dados Básicos</p>
                                 
                                 <div className="field">
@@ -188,7 +188,7 @@ function RegisterClinic() {
                                 </div>
                             </div>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Redes Sociais</p>
                                 
                                 <div className="flex-inpus">
@@ -236,7 +236,7 @@ function RegisterClinic() {
                                 </div>
                             </div>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Endereço</p>
 
                                 <div className="field">

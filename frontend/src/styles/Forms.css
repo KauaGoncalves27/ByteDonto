@@ -9,7 +9,7 @@ form .sec-title {
     border-bottom: 2px solid var(--PrimaryColors);
 }
 
-form .forms-section:first-child .sec-title {
+form .forms-dat-section:first-child .sec-title {
     margin-top: 1em;
 }
 
@@ -93,7 +93,7 @@ form textarea {
 
 
 @media (max-width: 765px) {
-    form .forms-section {
+    form .forms-dat-section {
         display: flex;
         flex-direction: column;
     }

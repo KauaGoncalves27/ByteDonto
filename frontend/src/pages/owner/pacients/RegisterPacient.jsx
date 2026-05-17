@@ -98,7 +98,7 @@ function RegisterPacient() {
 
                         <form onSubmit={handleSubmit} style={{ marginTop: '2rem' }}>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Identificação Básicos</p>
 
                                 <div className="field">
@@ -160,7 +160,7 @@ function RegisterPacient() {
                                 </div>
                             </div>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Informações de Contato</p>
 
                                 <div className="flex-inpus">
@@ -224,7 +224,7 @@ function RegisterPacient() {
                                 </div>
                             </div>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Endereço</p>
 
                                 <div className="field">
@@ -269,7 +269,7 @@ function RegisterPacient() {
                                 </div>
                             </div>
 
-                            <div className="forms-section">
+                            <div className="forms-dat-section">
                                 <p className="sec-title">Anamnese e Saúde Geral</p>
 
                                 <div className="field">
