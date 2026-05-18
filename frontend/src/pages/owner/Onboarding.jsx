@@ -8,7 +8,7 @@ import "../../styles/clinic.css";
 export default function Onboarding() {
     const { user } = useAuth();
     const opc_bar = useOwnerSidebar("clinic");
-    const nome = user?.perfil?.nome || "Dentista";
+    const nome = user?.perfil?.name || "Dentista";
 
     const passos = [
         {

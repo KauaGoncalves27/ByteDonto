@@ -249,7 +249,7 @@ function Financial({ role }) {
                                     <select style={{ width: "100%" }} value={form.paciente_id} onChange={e => setForm(p => ({ ...p, paciente_id: e.target.value }))}>
                                         <option value="">Selecione (opcional)...</option>
                                         {pacientes.map(p => (
-                                            <option key={p.id} value={p.id}>{p.nome}</option>
+                                            <option key={p.id} value={p.id}>{p.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -381,8 +381,8 @@ function Financial({ role }) {
                                             style={{ gridTemplateColumns: "1fr 1.5fr 1.5fr 1.5fr 1.2fr 1fr 1fr 1.2fr", borderBottom: idx === filtrados.length - 1 ? "none" : "1px solid var(--LineColor)" }}
                                         >
                                             <p style={{ fontFamily: "var(--font-secondary)", fontSize: "13px", fontWeight: 500 }}>{formatData(l.created_at)}</p>
-                                            <p style={{ fontWeight: 600 }}>{l.pacientes?.nome || "—"}</p>
-                                            <p className="text75">{l.dentista?.nome || "—"}</p>
+                                            <p style={{ fontWeight: 600 }}>{l.patients?.name || "—"}</p>
+                                            <p className="text75">{l.specialist?.name || "—"}</p>
                                             <p className="text75" style={{ fontSize: "13px" }}>{l.observacao || l.procedimento || "—"}</p>
                                             <p className="text75">{l.forma_pagamento || "—"}</p>
                                             <p style={{ fontFamily: "var(--font-secondary)", fontWeight: 700 }}>{formatCurrency(l.valor)}</p>

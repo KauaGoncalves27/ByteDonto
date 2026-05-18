@@ -54,7 +54,7 @@ function ViewClinic() {
                         <img src={clinica.logo || IMG} alt="Logo" />
                     </div>
                     <div className="text">
-                        <h1>{clinica.nome}</h1>
+                        <h1>{clinica.name}</h1>
                         <p>{clinica.cnpj} | {clinica.whatsapp}</p>
                         <Link to={`/owner/edit-clinic/${id}`}>Editar Informações da Clínica</Link>
                     </div>

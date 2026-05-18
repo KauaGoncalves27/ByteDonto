@@ -32,9 +32,9 @@ export default function SpecialistListPatients() {
     const pacientesFiltrados = pacientes.filter(p => {
         const query = busca.toLowerCase();
         return (
-            (p.nome && p.nome.toLowerCase().includes(query)) ||
+            (p.name && p.name.toLowerCase().includes(query)) ||
             (p.cpf && p.cpf.includes(query)) ||
-            (p.telefone_whatsapp && p.telefone_whatsapp.includes(query))
+            (p.whatsapp && p.whatsapp.includes(query))
         );
     });
 
@@ -79,8 +79,8 @@ export default function SpecialistListPatients() {
                             ) : (
                                 pacientesFiltrados.map((p, idx) => (
                                     <div key={p.id} className="table-row" style={{gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', borderBottom: idx === pacientesFiltrados.length - 1 ? 'none' : '1px solid var(--LineColor)'}}>
-                                        <div><p style={{fontWeight: 700}}>{p.nome}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{formatCPF(p.cpf)}</span></div>
-                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.telefone_whatsapp)}</p>
+                                        <div><p style={{fontWeight: 700}}>{p.name}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{formatCPF(p.cpf)}</span></div>
+                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.whatsapp)}</p>
                                         <p>-</p>
                                         <p style={{color: p.status === 'Ativo' ? '#EAB308' : '#22C55E', fontWeight: 700}}>{p.status === 'Ativo' ? "Em Andamento" : "Alta Médica"}</p>
                                         <div style={{textAlign: 'right'}}>

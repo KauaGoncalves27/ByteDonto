@@ -1,7 +1,7 @@
 from app.database import supabase
 
 PERMISSOES_PADRAO = {
-    "Especialista": {
+    "Specialist": {
         "ver_pacientes":      True,
         "editar_pacientes":   False,
         "ver_prontuario":     True,
@@ -11,7 +11,7 @@ PERMISSOES_PADRAO = {
         "cancelar_consultas": False,
         "ver_financeiro":     False,
     },
-    "Recepção": {
+    "Employee": {
         "ver_pacientes":      True,
         "editar_pacientes":   True,
         "ver_prontuario":     False,
@@ -29,26 +29,26 @@ def get_token(req):
 
 
 def get_user_clinica(token):
-    """Retorna (user_id, clinica_id). Lança ValueError se o perfil não for encontrado."""
+    """Retorna (user_id, clinic_id). Lança ValueError se o perfil não for encontrado."""
     user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id").eq("id", user.id).single().execute()
-    if not perfil.data:
-        raise ValueError("Perfil do usuário não encontrado. Faça login novamente.")
-    clinica_id = perfil.data.get("clinica_id")
-    if not clinica_id:
+    team = supabase.table("teams").select("clinic_id").eq("user_id", user.id).execute()
+    if not team.data:
         raise ValueError("Nenhuma clínica vinculada. Registre uma clínica antes de continuar.")
-    return user.id, clinica_id
+    clinic_id = team.data[0].get("clinic_id")
+    if not clinic_id:
+        raise ValueError("Nenhuma clínica vinculada. Registre uma clínica antes de continuar.")
+    return user.id, clinic_id
 
 
 def get_user_e_clinica(token):
-    """Retorna (user_id, clinica_id, papel). Lança ValueError se o perfil não for encontrado.
-    Para usuários com múltiplos papéis, retorna o primeiro perfil encontrado.
-    """
+    """Retorna (user_id, clinic_id, roles). Lança ValueError se o perfil não for encontrado."""
     user = supabase.auth.get_user(token).user
-    perfil = supabase.table("usuarios").select("clinica_id, papel").eq("id", user.id).execute()
-    if not perfil.data:
+    user_data = supabase.table("users").select("name, roles").eq("id", user.id).execute()
+    if not user_data.data:
         raise ValueError("Perfil do usuário não encontrado. Faça login novamente.")
-    clinica_id = perfil.data[0].get("clinica_id")
-    if not clinica_id:
+    roles = user_data.data[0].get("roles")
+    team = supabase.table("teams").select("clinic_id").eq("user_id", user.id).execute()
+    clinic_id = team.data[0].get("clinic_id") if team.data else None
+    if not clinic_id:
         raise ValueError("Nenhuma clínica vinculada. Registre uma clínica antes de continuar.")
-    return user.id, clinica_id, perfil.data[0]["papel"]
+    return user.id, clinic_id, roles

@@ -126,8 +126,8 @@ function CalendarWeek({ consultas, semanaBase, onMudarSemana }) {
                                         textOverflow: "ellipsis",
                                     }}
                                 >
-                                    {new Date(c.data_agendada).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}{" "}
-                                    {c.pacientes?.nome?.split(" ")[0] || "—"}
+                                    {new Date(c.consultation_date).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}{" "}
+                                    {c.patients?.name?.split(" ")[0] || "—"}
                                 </div>
                             ))}
                             {consultasDia.length > 3 && (
@@ -355,7 +355,7 @@ function SpecialistDashboard() {
                                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--PrimaryColorsBack)", border: "1px solid rgba(37,99,235,0.15)", borderRadius: "12px", padding: "0.75rem 1.25rem" }}>
                                                 <div>
                                                     <p style={{ margin: 0, fontWeight: 700, color: "var(--TextColor)", fontSize: "15px" }}>
-                                                        {consulta.pacientes?.nome || consulta.paciente?.nome || "Paciente"}
+                                                        {consulta.patients?.name || consulta.patient?.name || "Paciente"}
                                                     </p>
                                                     <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: "var(--TextColor75)" }}>
                                                         {consulta.tipo_atendimento || "Atendimento"}
@@ -366,7 +366,7 @@ function SpecialistDashboard() {
                                                         {consulta.status || "Agendado"}
                                                     </span>
                                                     <button
-                                                        onClick={() => { setActivePatient(consulta.pacientes?.nome || consulta.paciente?.nome || "Paciente"); setShowEncerrar(true); }}
+                                                        onClick={() => { setActivePatient(consulta.patients?.name || consulta.patient?.name || "Paciente"); setShowEncerrar(true); }}
                                                         className="submit"
                                                         style={{ padding: "6px 14px", fontSize: "13px", borderRadius: "8px", background: "var(--PrimaryColorsTheme)", boxShadow: "none" }}
                                                     >

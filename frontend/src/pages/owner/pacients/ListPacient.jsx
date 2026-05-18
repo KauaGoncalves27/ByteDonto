@@ -36,9 +36,9 @@ function ListPacient() {
     const pacientesFiltrados = pacientes.filter(p => {
         const query = busca.toLowerCase();
         return (
-            (p.nome && p.nome.toLowerCase().includes(query)) ||
+            (p.name && p.name.toLowerCase().includes(query)) ||
             (p.cpf && p.cpf.includes(query)) ||
-            (p.telefone_whatsapp && p.telefone_whatsapp.includes(query))
+            (p.whatsapp && p.whatsapp.includes(query))
         );
     });
 
@@ -83,7 +83,7 @@ function ListPacient() {
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "2rem"}}>
                     <div>
                         <h1 style={{margin: '0 0 0.5rem 0', color: 'var(--PrimaryColorsTheme)', fontSize: '28px'}}>Pacientes</h1>
-                        <p className="text75">Listagem completa de todos os pacientes da clinica {clinica?.nome}</p>
+                        <p className="text75">Listagem completa de todos os pacientes da clinica {clinica?.name}</p>
                     </div>
                     <div>
                         <Link to={`/owner/pacients/${id_clinic}/register`} style={{background: 'var(--PrimaryColorsTheme)', color: 'white', padding: '12px 24px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
@@ -121,8 +121,8 @@ function ListPacient() {
                             ) : (
                                 pacientesFiltrados.map((p, idx) => (
                                     <div key={p.id} className="table-row" style={{gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', borderBottom: idx === pacientesFiltrados.length - 1 ? 'none' : '1px solid var(--LineColor)'}}>
-                                        <div><p style={{fontWeight: 700}}>{p.nome}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{formatCPF(p.cpf)}</span></div>
-                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.telefone_whatsapp)}</p>
+                                        <div><p style={{fontWeight: 700}}>{p.name}</p><span style={{fontSize: '12px', color: 'var(--TextColor75)'}}>{formatCPF(p.cpf)}</span></div>
+                                        <p style={{fontFamily: 'var(--font-secondary)'}}>{formatPhone(p.whatsapp)}</p>
                                         <p>-</p>
                                         <p style={{color: p.status === 'Ativo' ? '#22C55E' : 'var(--TextColor75)', fontWeight: 700}}>{p.status || "Ativo"}</p>
                                         <div style={{textAlign: 'right'}}><Link to={`/reception/patient/view?id=${p.id}`} className="submit" style={{padding: '6px 16px', fontSize: '13px', background: 'var(--LineColor)', color: 'var(--TextColor)', boxShadow: 'none', display: 'inline-block'}}>Ver Ficha</Link></div>

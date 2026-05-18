@@ -41,17 +41,17 @@ function LoginPage() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    /* Mapeia o :type da URL para o papel esperado no banco */
+    /* Mapeia o :type da URL para o role esperado no banco */
     const TYPE_TO_PAPEL = {
-        owner:      "Dono",
-        employee:   "Recepção",
-        specialist: "Especialista",
+        owner:      "Owner",
+        employee:   "Employee",
+        specialist: "Specialist",
     };
 
-    /* Verifica se o papel do usuário bate com o tipo de login atual */
+    /* Verifica se o role do usuário bate com o tipo de login atual */
     function validarTipoDeConta(perfil) {
         const papelEsperado = TYPE_TO_PAPEL[type];
-        const papelDoUsuario = perfil?.perfil?.papel;
+        const papelDoUsuario = perfil?.perfil?.roles;
 
         if (!papelDoUsuario || papelDoUsuario !== papelEsperado) {
             const nomeTipo = validTypes[type]?.badge || type;
@@ -66,16 +66,16 @@ function LoginPage() {
 
     /* Função de Roteamento Inteligente */
     const routBasedOnRole = (userData) => {
-        if (userData && userData.perfil && userData.perfil.papel) {
-            const role = userData.perfil.papel;
+        if (userData && userData.perfil && userData.perfil.roles) {
+            const role = userData.perfil.roles;
 
-            if (role === "Recepção") {
+            if (role === "Employee") {
                 navigate("/employee/dashboard");
 
-            } else if (role === "Especialista") {
+            } else if (role === "Specialist") {
                 navigate("/specialist/dashboard");
 
-            } else if (role === "Dono") {
+            } else if (role === "Owner") {
                 navigate("/owner/clinic");
 
             } else {

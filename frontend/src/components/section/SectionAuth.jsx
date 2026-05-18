@@ -14,11 +14,11 @@ function SectionAuth({ type_styles }) {
     const { user, logout } = useAuth();
     
     const ROLE_LABEL = {
-        "Dono":        "PROPRIETÁRIO",
-        "Recepção":    "FUNCIONÁRIO",
-        "Especialista":"ESPECIALISTA",
+        "Owner":      "PROPRIETÁRIO",
+        "Employee":   "FUNCIONÁRIO",
+        "Specialist": "ESPECIALISTA",
     };
-    const roleLabel = ROLE_LABEL[user?.perfil?.papel] || user?.perfil?.papel || "USUÁRIO";
+    const roleLabel = ROLE_LABEL[user?.perfil?.roles] || user?.perfil?.roles || "USUÁRIO";
 
     return (
         <section className={`premium-topbar ${type_styles}`}>
@@ -35,7 +35,7 @@ function SectionAuth({ type_styles }) {
 
                 <div className="user-profile">
 
-                    <span className="user-name">{user?.perfil?.nome || "Usuário"}</span>
+                    <span className="user-name">{user?.perfil?.name || "Usuário"}</span>
                     <span className="user-role owner-badge">{roleLabel}</span>
 
                 </div>

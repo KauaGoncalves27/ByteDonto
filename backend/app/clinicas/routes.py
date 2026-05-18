@@ -5,9 +5,9 @@ from app.utils import get_token, get_user_clinica
 clinicas_bp = Blueprint("clinicas", __name__)
 
 CAMPOS_CLINICA = {
-    "nome", "nome_fantasia", "cnpj", "razao_social", "resumo",
-    "telefone", "whatsapp", "instagram", "facebook",
-    "endereco", "cidade", "estado", "pais", "cep"
+    "name", "cnpj", "company_name", "summary",
+    "phone_number", "whatsapp", "instagram", "facebook",
+    "address", "city", "states", "country"
 }
 
 
@@ -23,14 +23,18 @@ def criar_clinica():
 
         data = request.get_json()
 
-        # Whitelist de campos permitidos e sempre define dono_id a partir do token
         payload = {k: v for k, v in data.items() if k in CAMPOS_CLINICA}
-        payload["dono_id"] = user_id
+        payload["owner_id"] = user_id
 
-        result_clinica = supabase.table("clinicas").insert(payload).execute()
+        result_clinica = supabase.table("clinics").insert(payload).execute()
         nova_clinica_id = result_clinica.data[0]["id"]
 
-        supabase.table("usuarios").update({"clinica_id": nova_clinica_id}).eq("id", user_id).execute()
+        # Vincula o owner à clínica via tabela teams
+        supabase.table("teams").insert({
+            "user_id": user_id,
+            "clinic_id": nova_clinica_id,
+            "status": "active",
+        }).execute()
 
         return jsonify(result_clinica.data[0]), 201
     except Exception as e:
@@ -48,13 +52,14 @@ def listar_clinicas():
         user_response = supabase.auth.get_user(token)
         user_id = user_response.user.id
 
-        perfil = supabase.table("usuarios").select("clinica_id").eq("id", user_id).single().execute()
-        clinica_id = perfil.data.get("clinica_id") if perfil.data else None
+        # Busca clinic_id via teams
+        team = supabase.table("teams").select("clinic_id").eq("user_id", user_id).execute()
+        clinic_id = team.data[0].get("clinic_id") if team.data else None
 
-        if not clinica_id:
+        if not clinic_id:
             return jsonify([]), 200
 
-        result = supabase.table("clinicas").select("*").eq("id", clinica_id).execute()
+        result = supabase.table("clinics").select("*").eq("id", clinic_id).execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -69,11 +74,10 @@ def get_clinica(clinica_id):
     try:
         _, user_clinica_id = get_user_clinica(token)
 
-        # Garante que o usuário só acessa a própria clínica
         if clinica_id != user_clinica_id:
             return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
 
-        result = supabase.table("clinicas").select("*").eq("id", clinica_id).single().execute()
+        result = supabase.table("clinics").select("*").eq("id", clinica_id).single().execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -91,10 +95,10 @@ def deletar_clinica(clinica_id):
         if clinica_id != user_clinica_id:
             return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
 
-        # Remove vínculo dos usuários antes de deletar a clínica
-        supabase.table("usuarios").update({"clinica_id": None}).eq("clinica_id", clinica_id).execute()
+        # Remove vínculos na tabela teams antes de deletar a clínica
+        supabase.table("teams").delete().eq("clinic_id", clinica_id).execute()
 
-        supabase.table("clinicas").delete().eq("id", clinica_id).execute()
+        supabase.table("clinics").delete().eq("id", clinica_id).execute()
 
         return jsonify({"message": "Clínica removida com sucesso"}), 200
     except Exception as e:
@@ -110,7 +114,6 @@ def atualizar_clinica(clinica_id):
     try:
         _, user_clinica_id = get_user_clinica(token)
 
-        # Garante que o usuário só edita a própria clínica
         if clinica_id != user_clinica_id:
             return jsonify({"error": "Acesso não autorizado a esta clínica"}), 403
 
@@ -121,7 +124,7 @@ def atualizar_clinica(clinica_id):
             return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
         result = (
-            supabase.table("clinicas")
+            supabase.table("clinics")
             .update(payload)
             .eq("id", clinica_id)
             .execute()

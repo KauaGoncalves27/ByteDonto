@@ -74,15 +74,15 @@ function CardConsulta({ consulta, onEvolucaoChange }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", flexWrap: "wrap" }}>
                 <div>
                     <span style={{ fontSize: "13px", color: "var(--TextColor75, #6B7280)" }}>
-                        {formatarData(consulta.data_agendada)}
-                        {formatarHora(consulta.data_agendada) ? ` às ${formatarHora(consulta.data_agendada)}` : ""}
+                        {formatarData(consulta.consultation_date)}
+                        {formatarHora(consulta.consultation_date) ? ` às ${formatarHora(consulta.consultation_date)}` : ""}
                     </span>
                     <h4 style={{ margin: "2px 0 0 0", fontSize: "16px", color: "var(--TextColor, #111827)", fontWeight: 700 }}>
                         {consulta.tipo_atendimento || "Atendimento"}
                     </h4>
-                    {consulta.dentista?.nome && (
+                    {consulta.specialist?.name && (
                         <span style={{ fontSize: "12px", color: "var(--TextColor75, #6B7280)" }}>
-                            Dr(a). {consulta.dentista.nome}
+                            Dr(a). {consulta.specialist.name}
                         </span>
                     )}
                 </div>
@@ -90,13 +90,13 @@ function CardConsulta({ consulta, onEvolucaoChange }) {
             </div>
 
             {/* Procedimentos */}
-            {consulta.procedimentos_descritos && (
+            {consulta.reason_complaint && (
                 <div>
                     <p style={{ margin: "0 0 4px 0", fontSize: "12px", fontWeight: 700, color: "var(--TextColor75, #6B7280)", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                         Procedimentos
                     </p>
                     <p style={{ margin: 0, fontSize: "14px", color: "var(--TextColor, #111827)" }}>
-                        {consulta.procedimentos_descritos}
+                        {consulta.reason_complaint}
                     </p>
                 </div>
             )}
@@ -185,7 +185,7 @@ export default function RegistroClinico({ pacienteId, token }) {
         setLoading(true);
         setErro(null);
 
-        fetch(`${API_URL}/api/consultas/?paciente_id=${pacienteId}`, {
+        fetch(`${API_URL}/api/consultas/?patient_id=${pacienteId}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
@@ -193,7 +193,7 @@ export default function RegistroClinico({ pacienteId, token }) {
                 if (!ok) throw new Error(data.error || "Erro ao buscar consultas");
                 // Ordena da mais recente para a mais antiga
                 const ordenadas = [...(Array.isArray(data) ? data : [])].sort((a, b) => {
-                    return new Date(b.data_agendada) - new Date(a.data_agendada);
+                    return new Date(b.consultation_date) - new Date(a.consultation_date);
                 });
                 setConsultas(ordenadas);
             })
@@ -224,10 +224,10 @@ export default function RegistroClinico({ pacienteId, token }) {
         const dataAgendada = form.hora ? `${form.data}T${form.hora}:00` : `${form.data}T00:00:00`;
 
         const body = {
-            paciente_id: pacienteId,
-            data_agendada: dataAgendada,
+            patient_id: pacienteId,
+            consultation_date: dataAgendada,
             tipo_atendimento: form.tipo_atendimento,
-            procedimentos_descritos: form.procedimentos_descritos,
+            reason_complaint: form.procedimentos_descritos,
             evolucao_clinica: form.evolucao_clinica,
             status: form.status,
         };

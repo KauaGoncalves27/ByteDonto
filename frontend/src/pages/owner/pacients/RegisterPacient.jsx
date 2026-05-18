@@ -47,28 +47,24 @@ function RegisterPacient() {
         setLoading(true);
 
         const payload = {
-            nome,
+            name: nome,
             cpf: cpf.replace(/\D/g, ''),
             rg,
-            data_nascimento,
-            genero,
+            data_birth: data_nascimento,
+            gender: genero,
             email,
-            telefone_whatsapp: tel_whatsapp.replace(/\D/g, ''),
-            endereco: {
-                pais,
-                estado,
-                cidade,
-                logradouro: endereco_completo,
-            },
-            anamnese: {
-                alergias,
-                condicoes,
-                medicacoes,
-                drogas,
-                cirurgias,
-                emergencia_nome: emerg_nome,
-                emergencia_telefone: emerg_tel.replace(/\D/g, ''),
-            },
+            whatsapp: tel_whatsapp.replace(/\D/g, ''),
+            country: pais,
+            states: estado,
+            city: cidade,
+            address: endereco_completo,
+            emergency_name: emerg_nome,
+            emergency_phone: emerg_tel.replace(/\D/g, ''),
+            known_allergias: alergias,
+            systemic_conditions: condicoes,
+            continuous_medications: medicacoes,
+            drug_use: drogas,
+            surgeries_history: cirurgias,
         };
 
         try {

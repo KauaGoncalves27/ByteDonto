@@ -10,12 +10,12 @@ supabase_admin = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
 
 auth_bp = Blueprint("auth", __name__)
 
-PAPEIS_VALIDOS = ["Dono", "Recepção", "Especialista"]
+PAPEIS_VALIDOS = ["Owner", "Employee", "Specialist"]
 
 PAPEL_LABEL = {
-    "Dono":       "proprietário",
-    "Especialista": "especialista",
-    "Recepção":   "funcionário de recepção",
+    "Owner":    "proprietário",
+    "Specialist": "especialista",
+    "Employee": "funcionário de recepção",
 }
 
 
@@ -45,18 +45,13 @@ def registro():
     """
     Cria conta de usuário.
     Body: { nome, email, password, papel }
-    papel deve ser 'Dono', 'Recepção' ou 'Especialista'.
-
-    Regras:
-    - O mesmo email pode ter papéis diferentes (Dono e Especialista, por ex.)
-    - O mesmo email NÃO pode ter o mesmo papel duas vezes
-    - Requer a migration_multipapel.sql aplicada no banco para suporte completo
+    papel deve ser 'Owner', 'Employee' ou 'Specialist'.
     """
     data = request.get_json()
     nome = (data.get("nome") or "").strip()
     email = (data.get("email") or "").strip()
     password = (data.get("password") or "").strip()
-    papel = (data.get("papel") or "Dono").strip()
+    papel = (data.get("papel") or "Owner").strip()
 
     if not all([nome, email, password]):
         return jsonify({"error": "Nome, email e senha são obrigatórios"}), 400
@@ -70,7 +65,6 @@ def registro():
     novo_id = None
 
     try:
-        # Tenta criar usuário no Supabase Auth
         auth_response = supabase_admin.auth.admin.create_user({
             "email": email,
             "password": password,
@@ -81,7 +75,6 @@ def registro():
     except Exception as auth_err:
         auth_error_msg = str(auth_err)
         if "already been registered" in auth_error_msg or "already registered" in auth_error_msg:
-            # Email já existe no Auth — busca o ID do usuário existente
             existing = _buscar_usuario_auth_por_email(email)
             if not existing:
                 return jsonify({"error": "Erro ao verificar conta existente. Tente novamente."}), 500
@@ -91,37 +84,35 @@ def registro():
 
     # Verifica se este email já tem ESTE papel específico
     perfil_existente = (
-        supabase_admin.table("usuarios")
-        .select("papel")
+        supabase_admin.table("users")
+        .select("roles")
         .eq("id", novo_id)
-        .eq("papel", papel)
+        .eq("roles", papel)
         .execute()
     )
     if perfil_existente.data:
         label = PAPEL_LABEL.get(papel, papel)
         return jsonify({"error": f"Este e-mail já está cadastrado como {label}."}), 409
 
-    # Cria o perfil na tabela usuarios com o novo papel
+    # Cria o perfil na tabela users
     try:
-        supabase_admin.table("usuarios").insert({
+        supabase_admin.table("users").insert({
             "id": novo_id,
-            "nome": nome,
-            "papel": papel,
-            "permissoes": PERMISSOES_PADRAO.get(papel, {}),
+            "name": nome,
+            "roles": papel,
         }).execute()
 
         return jsonify({"message": "Conta criada com sucesso. Faça login para continuar."}), 201
 
     except Exception as insert_err:
-        # Provavelmente violação de PK (tabela não migrada ainda para multi-papel)
-        perfil_atual = supabase_admin.table("usuarios").select("papel").eq("id", novo_id).execute()
+        perfil_atual = supabase_admin.table("users").select("roles").eq("id", novo_id).execute()
         if perfil_atual.data:
-            papeis = [PAPEL_LABEL.get(p["papel"], p["papel"]) for p in perfil_atual.data]
+            papeis = [PAPEL_LABEL.get(p["roles"], p["roles"]) for p in perfil_atual.data]
             papeis_str = " e ".join(papeis)
             return jsonify({
                 "error": (
                     f"Este e-mail já está cadastrado no sistema como {papeis_str}. "
-                    f"Para usar um novo perfil, aplique a migration_multipapel.sql no banco de dados."
+                    f"Para usar um novo perfil, entre em contato com o suporte."
                 )
             }), 409
         return jsonify({"error": str(insert_err)}), 500
@@ -180,7 +171,7 @@ def logout():
     try:
         supabase_admin.auth.admin.sign_out(token)
     except Exception:
-        pass  # Token pode já estar expirado; o frontend limpará de qualquer forma
+        pass
 
     return jsonify({"message": "Logout realizado com sucesso"}), 200
 
@@ -200,7 +191,7 @@ def me():
         user_response = supabase.auth.get_user(token)
         user = user_response.user
 
-        perfil_response = supabase.table("usuarios").select("*").eq("id", user.id).execute()
+        perfil_response = supabase.table("users").select("*").eq("id", user.id).execute()
         perfil_data = perfil_response.data[0] if perfil_response.data else None
 
         return jsonify({

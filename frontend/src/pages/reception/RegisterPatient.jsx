@@ -75,32 +75,26 @@ function RegisterPatient() {
         e.preventDefault();
         setIsLoading(true);
 
-        // Montagem avançada de JSON usando a estratégia JSONB combinada com a API Python
+        const enderecoCompleto = [rua, numero, bairro].filter(Boolean).join(', ');
         const payload = {
-            nome: formData.nome,
+            name: formData.nome,
             email: formData.email,
-            telefone_whatsapp: formData.telefone_whatsapp.replace(/\D/g, ''),
+            whatsapp: formData.telefone_whatsapp.replace(/\D/g, ''),
             cpf: formData.cpf.replace(/\D/g, ''),
             rg: formData.rg,
-            data_nascimento: formData.data_nascimento,
-            genero: formData.genero,
-            endereco: {
-                cep: cep.replace(/\D/g, ''),
-                rua: rua,
-                bairro: bairro,
-                cidade: cidade,
-                estado: estado,
-                numero: numero
-            },
-            anamnese: {
-                alergias: formData.alergias,
-                condicoes: formData.condicoes,
-                medicacoes: formData.medicacoes,
-                drogas: formData.drogas,
-                cirurgias: formData.cirurgias,
-                emergencia_nome: formData.emerg_nome,
-                emergencia_telefone: formData.emerg_tel.replace(/\D/g, '')
-            }
+            data_birth: formData.data_nascimento,
+            gender: formData.genero,
+            address: enderecoCompleto,
+            city: cidade,
+            states: estado,
+            country: "Brasil",
+            emergency_name: formData.emerg_nome,
+            emergency_phone: formData.emerg_tel.replace(/\D/g, ''),
+            known_allergias: formData.alergias,
+            systemic_conditions: formData.condicoes,
+            continuous_medications: formData.medicacoes,
+            drug_use: formData.drogas,
+            surgeries_history: formData.cirurgias,
         };
 
         try {

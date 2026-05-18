@@ -61,8 +61,16 @@ export default function ViewPatient() {
         );
     }
 
-    // Extrair JSONB Anamnese (Fallback para vazio se não existir)
-    const anamnese = paciente.anamnese || {};
+    // Mapeia campos planos da tabela patients para o objeto anamnese
+    const anamnese = {
+        alergias: paciente.known_allergias,
+        condicoes: paciente.systemic_conditions,
+        medicacoes: paciente.continuous_medications,
+        drogas: paciente.drug_use,
+        cirurgias: paciente.surgeries_history,
+        emergencia_nome: paciente.emergency_name,
+        emergencia_telefone: paciente.emergency_phone,
+    };
 
     return (
         <>
@@ -73,17 +81,17 @@ export default function ViewPatient() {
                 {/* CABEÇALHO DO PRONTUÁRIO */}
                 <div style={{background: 'var(--PrimaryColorsTheme)', borderRadius: '24px', padding: '2rem', color: 'white', display: 'flex', alignItems: 'center', gap: '2rem', marginBottom: '2rem', boxShadow: '0 10px 25px rgba(22, 163, 74, 0.2)'}}>
                     <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px'}}>
-                        {paciente.genero === "Feminino" ? "👩🏽" : "👨🏻"}
+                        {paciente.gender === "Feminino" ? "👩🏽" : "👨🏻"}
                     </div>
                     <div>
                         <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                            <h1 style={{margin: '0', fontSize: '28px'}}>{paciente.nome}</h1>
+                            <h1 style={{margin: '0', fontSize: '28px'}}>{paciente.name}</h1>
                             <span style={{background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600}}>{paciente.status}</span>
                         </div>
                         <div style={{display: 'flex', gap: '2rem', marginTop: '1rem', fontFamily: 'var(--font-secondary)'}}>
                             <span><strong style={{opacity: 0.8}}>CPF:</strong> {formatCPF(paciente.cpf)}</span>
-                            <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {formatDate(paciente.data_nascimento)} ({calcIdade(paciente.data_nascimento)} anos)</span>
-                            <span><strong style={{opacity: 0.8}}>WhatsApp:</strong> {formatPhone(paciente.telefone_whatsapp)}</span>
+                            <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {formatDate(paciente.data_birth)} ({calcIdade(paciente.data_birth)} anos)</span>
+                            <span><strong style={{opacity: 0.8}}>WhatsApp:</strong> {formatPhone(paciente.whatsapp)}</span>
                         </div>
                     </div>
                 </div>

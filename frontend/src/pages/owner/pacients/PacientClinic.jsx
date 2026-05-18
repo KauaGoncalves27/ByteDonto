@@ -44,7 +44,7 @@ function PacientClinic() {
 
     /* FILTRO DE BUSCA */
     const clinicasFiltradas = clinicas.filter((c) =>
-        c.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+        c.name?.toLowerCase().includes(busca.toLowerCase()) ||
         c.cnpj?.includes(busca)
     );
 
@@ -138,7 +138,7 @@ function PacientClinic() {
                                 clinic_id={item.id}
                                 clinic_logo={item.logo}
                                 clinic_img={IMG}
-                                clinic_name={item.nome}
+                                clinic_name={item.name}
                                 clinic_cnpj={item.cnpj}
                                 clinic_phone={item.whatsapp}
                             />

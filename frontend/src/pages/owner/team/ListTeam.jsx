@@ -12,7 +12,7 @@ import "../../../styles/clinic.css";
 import "../../../styles/Forms.css";
 import "../../../styles/Table.css";
 
-const PAPEIS = ["Especialista", "Recepção"];
+const PAPEIS = ["Specialist", "Employee"];
 
 const METRICAS_CONFIG = [
     { key: "total_especialistas",label: "Nº Total de Especialistas", emoji: "🦷", moeda: false },
@@ -32,12 +32,12 @@ const LABELS_PERMISSAO = {
 };
 
 const PAPEL_LABEL = {
-    Dono: { label: "Proprietário", cor: "#7C3AED" },
-    Especialista: { label: "Especialista", cor: "#2563EB" },
-    "Recepção": { label: "Recepção", cor: "#059669" },
+    Owner:      { label: "Proprietário", cor: "#7C3AED" },
+    Specialist: { label: "Especialista", cor: "#2563EB" },
+    Employee:   { label: "Recepção", cor: "#059669" },
 };
 
-const FORM_INICIAL = { email: "", papel: "Especialista" };
+const FORM_INICIAL = { email: "", papel: "Specialist" };
 
 function MetricasSkeleton() {
     return (
@@ -135,8 +135,8 @@ function BindClinic() {
         setFormSucesso(null);
         try {
             const novo = await apiCriarMembro(token, form);
-            setFormSucesso(`${novo.nome} adicionado com sucesso!`);
-            setEquipe(prev => [...prev, { id: novo.id, nome: novo.nome, papel: novo.papel, created_at: new Date().toISOString() }]);
+            setFormSucesso(`${novo.name} adicionado com sucesso!`);
+            setEquipe(prev => [...prev, { id: novo.id, name: novo.name, roles: novo.roles, created_at: new Date().toISOString() }]);
             setTimeout(() => {
                 setShowForm(false);
                 setFormSucesso(null);
@@ -151,7 +151,7 @@ function BindClinic() {
     // --- Editar membro ---
     function abrirEdit(membro) {
         setMembroEditando(membro);
-        setEditForm({ nome: membro.nome, papel: membro.papel });
+        setEditForm({ nome: membro.name, papel: membro.roles });
         setEditErro(null);
         setShowEdit(true);
     }
@@ -211,8 +211,8 @@ function BindClinic() {
         }
     }
 
-    const membrosNaoDono = equipe.filter(m => m.papel !== "Dono");
-    const dono = equipe.find(m => m.papel === "Dono");
+    const membrosNaoDono = equipe.filter(m => m.roles !== "Owner");
+    const dono = equipe.find(m => m.roles === "Owner");
 
     useEffect(() => {
 
@@ -284,7 +284,7 @@ function BindClinic() {
                                     <select id="papel" value={form.papel}
                                         onChange={e => setForm(p => ({ ...p, papel: e.target.value }))}>
                                         {PAPEIS.map(p => (
-                                            <option key={p} value={p}>{p === "Recepção" ? "Atendimento" : p}</option>
+                                            <option key={p} value={p}>{p === "Employee" ? "Atendimento" : p}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -311,7 +311,7 @@ function BindClinic() {
                         <div style={{ marginBottom: "1.5rem" }}>
                             <h2 style={{ margin: 0, color: "var(--PrimaryColorsTheme)" }}>Editar Membro</h2>
                             <p className="text75" style={{ margin: "0.5rem 0 0 0", fontSize: "14px" }}>
-                                Altere o nome ou o nível de acesso de {membroEditando.nome}.
+                                Altere o nome ou o nível de acesso de {membroEditando.name}.
                             </p>
                         </div>
                         <form onSubmit={handleEditar}>
@@ -330,7 +330,7 @@ function BindClinic() {
                                 <select id="edit-papel" value={editForm.papel}
                                     onChange={e => setEditForm(p => ({ ...p, papel: e.target.value }))}>
                                     {PAPEIS.map(p => (
-                                        <option key={p} value={p}>{p === "Recepção" ? "Recepção / Atendimento" : p}</option>
+                                        <option key={p} value={p}>{p === "Employee" ? "Recepção / Atendimento" : p}</option>
                                     ))}
                                 </select>
                             </div>
@@ -356,7 +356,7 @@ function BindClinic() {
                         <div style={{ marginBottom: "1.5rem" }}>
                             <h2 style={{ margin: 0, color: "var(--PrimaryColorsTheme)" }}>Permissões</h2>
                             <p className="text75" style={{ margin: "0.5rem 0 0 0", fontSize: "14px" }}>
-                                Defina o que <strong>{membroPermissoes.nome}</strong> pode acessar.
+                                Defina o que <strong>{membroPermissoes.name}</strong> pode acessar.
                             </p>
                         </div>
 
@@ -439,7 +439,7 @@ function BindClinic() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2em" }}>
                         <div>
                             <h1 style={{ margin: "0 0 0.5rem 0" }}>Colaboradores e Convites</h1>
-                            <p className="text75">Gerencie os acessos e convites da clínica {clinica?.nome}</p>
+                            <p className="text75">Gerencie os acessos e convites da clínica {clinica?.name}</p>
                         </div>
                         <button className="submit" onClick={abrirForm} style={{ padding: "12px 24px", fontSize: "15px" }}>
                             + Adicionar Membro
@@ -463,7 +463,7 @@ function BindClinic() {
                                     <p className="text75" style={{ marginBottom: "0.75rem", fontWeight: 700, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Proprietário</p>
                                     <div className="table-row" style={{ gridTemplateColumns: "2fr 1fr 1fr", background: "rgba(124,58,237,0.06)", borderRadius: "10px", padding: "14px 16px" }}>
                                         <div>
-                                            <p style={{ fontWeight: 700 }}>{dono.nome}</p>
+                                            <p style={{ fontWeight: 700 }}>{dono.name}</p>
                                         </div>
                                         <span style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED", padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: 700, alignSelf: "center" }}>
                                             Proprietário
@@ -496,11 +496,11 @@ function BindClinic() {
 
                                     <div className="table-body">
                                         {membrosNaoDono.map(membro => {
-                                            const config = PAPEL_LABEL[membro.papel] || { label: membro.papel, cor: "#6B7280" };
+                                            const config = PAPEL_LABEL[membro.roles] || { label: membro.roles, cor: "#6B7280" };
                                             const dataFormatada = new Date(membro.created_at).toLocaleDateString("pt-BR");
                                             return (
                                                 <div className="table-row" key={membro.id} style={{ gridTemplateColumns: "2fr 1fr 1fr 180px" }}>
-                                                    <p style={{ fontWeight: 600 }}>{membro.nome}</p>
+                                                    <p style={{ fontWeight: 600 }}>{membro.name}</p>
                                                     <span style={{ background: `${config.cor}18`, color: config.cor, padding: "4px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: 700, alignSelf: "center", width: "fit-content" }}>
                                                         {config.label}
                                                     </span>

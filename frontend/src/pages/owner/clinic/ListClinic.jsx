@@ -95,7 +95,7 @@ function ListClinic() {
 
     const clinicasFiltradas = clinicas.filter(
         (c) =>
-            c.nome
+            c.name
                 ?.toLowerCase()
                 .includes(
                     busca.toLowerCase()
@@ -242,13 +242,13 @@ function ListClinic() {
                                 clinic_url={`/owner/view-clinic/${item.id}`}
                                 clinic_logo={item.logo}
                                 clinic_img={IMG}
-                                clinic_name={item.nome}
+                                clinic_name={item.name}
                                 clinic_cnpj={item.cnpj}
                                 clinic_phone={item.whatsapp}
                                 onDelete={() =>
                                     handleDelete(
                                         item.id,
-                                        item.nome
+                                        item.name
                                     )
                                 }
                             />

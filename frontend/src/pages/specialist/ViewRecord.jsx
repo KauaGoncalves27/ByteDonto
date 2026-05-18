@@ -32,7 +32,7 @@ function Receituario({ paciente, dentista }) {
                 .footer{margin-top:60px;border-top:1px solid #ccc;padding-top:16px;font-size:13px;color:#666}
             </style></head><body>
             <h2>Receituário Odontológico</h2>
-            <p><strong>Paciente:</strong> ${paciente?.nome || ""} &nbsp;&nbsp; <strong>Data:</strong> ${hoje}</p>
+            <p><strong>Paciente:</strong> ${paciente?.name || ""} &nbsp;&nbsp; <strong>Data:</strong> ${hoje}</p>
             ${medicamentos.filter(m=>m.nome).map((m,i)=>`
                 <div class="med"><strong>${i+1}. ${m.nome}</strong><br/>
                 ${m.posologia?`<span>Posologia: ${m.posologia}</span><br/>`:""}
@@ -109,7 +109,12 @@ export default function SpecialistViewRecord() {
             try {
                 const data = await apiGetPaciente(token, pacienteId);
                 setPaciente(data);
-                setAnamneseForm(data.anamnese || {});
+                setAnamneseForm({
+                    condicoes: data.systemic_conditions || data.anamnese?.condicoes || "",
+                    alergias: data.known_allergias || data.anamnese?.alergias || "",
+                    medicacoes: data.continuous_medications || data.anamnese?.medicacoes || "",
+                    cirurgias: data.surgeries_history || data.anamnese?.cirurgias || "",
+                });
                 setOdontograma(data.odontograma || {});
             } catch (error) {
                 console.error("Erro ao buscar paciente", error);
@@ -126,7 +131,12 @@ export default function SpecialistViewRecord() {
         setSalvandoAnamnese(true);
         setAnamneseSucesso(false);
         try {
-            await apiAtualizarPaciente(token, pacienteId, { anamnese: anamneseForm });
+            await apiAtualizarPaciente(token, pacienteId, {
+                systemic_conditions: anamneseForm.condicoes,
+                known_allergias: anamneseForm.alergias,
+                continuous_medications: anamneseForm.medicacoes,
+                surgeries_history: anamneseForm.cirurgias,
+            });
             setPaciente(prev => ({ ...prev, anamnese: anamneseForm }));
             setAnamneseSucesso(true);
             setTimeout(() => setAnamneseSucesso(false), 2000);
@@ -172,7 +182,12 @@ export default function SpecialistViewRecord() {
         );
     }
 
-    const anamnese = paciente.anamnese || {};
+    const anamnese = {
+        alergias: paciente.known_allergias || paciente.anamnese?.alergias,
+        condicoes: paciente.systemic_conditions || paciente.anamnese?.condicoes,
+        medicacoes: paciente.continuous_medications || paciente.anamnese?.medicacoes,
+        cirurgias: paciente.surgeries_history || paciente.anamnese?.cirurgias,
+    };
 
     return (
         <>
@@ -184,16 +199,16 @@ export default function SpecialistViewRecord() {
                 <div style={{background: 'var(--PrimaryColorsTheme)', borderRadius: '24px', padding: '2rem', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', boxShadow: '0 10px 25px rgba(37, 99, 235, 0.2)'}}>
                     <div style={{display: 'flex', gap: '2rem', alignItems: 'center'}}>
                         <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px'}}>
-                            {paciente.genero === "Feminino" ? "👩🏽" : "👨🏻"}
+                            {paciente.gender === "Feminino" ? "👩🏽" : "👨🏻"}
                         </div>
                         <div>
                             <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                                <h1 style={{margin: '0', fontSize: '28px'}}>{paciente.nome}</h1>
+                                <h1 style={{margin: '0', fontSize: '28px'}}>{paciente.name}</h1>
                                 <span style={{background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px', fontWeight: 600}}>Tratamento</span>
                             </div>
                             <div style={{display: 'flex', gap: '2rem', marginTop: '1rem', fontFamily: 'var(--font-secondary)'}}>
                                 <span><strong style={{opacity: 0.8}}>Convênio/Origem:</strong> Particular</span>
-                                <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {formatDate(paciente.data_nascimento)} ({calcIdade(paciente.data_nascimento)} anos)</span>
+                                <span><strong style={{opacity: 0.8}}>Nascimento:</strong> {formatDate(paciente.data_birth)} ({calcIdade(paciente.data_birth)} anos)</span>
                             </div>
                         </div>
                     </div>
@@ -335,7 +350,7 @@ export default function SpecialistViewRecord() {
                 {/* ABA 5: RECEITUÁRIO */}
                 {activeTab === "receituario" && (
                     <div className="forms-section" style={{animation: 'fadeIn 0.3s'}}>
-                        <Receituario paciente={paciente} dentista={user?.perfil?.nome} />
+                        <Receituario paciente={paciente} dentista={user?.perfil?.name} />
                     </div>
                 )}
 

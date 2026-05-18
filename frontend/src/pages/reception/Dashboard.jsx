@@ -49,7 +49,7 @@ function ReceptionDashboard() {
             apiGetConsultas(token).catch(() => []),
         ]).then(([p, e, c]) => {
             setPacientes(p);
-            setEspecialistas(e.filter(m => m.papel === "Especialista"));
+            setEspecialistas(e.filter(m => m.roles === "Specialist"));
             setConsultas(c);
         });
     }, [token]);
@@ -57,17 +57,17 @@ function ReceptionDashboard() {
     // Derivados de autocomplete
     const filteredPatients = searchName.length > 1 && !selectedPatient
         ? pacientes.filter(p =>
-            p.nome?.toLowerCase().includes(searchName.toLowerCase()) ||
+            p.name?.toLowerCase().includes(searchName.toLowerCase()) ||
             p.cpf?.includes(searchName) ||
-            p.telefone_whatsapp?.includes(searchName)
+            p.whatsapp?.includes(searchName)
         )
         : [];
 
     const filteredQuick = quickSearch.length > 1
         ? pacientes.filter(p =>
-            p.nome?.toLowerCase().includes(quickSearch.toLowerCase()) ||
+            p.name?.toLowerCase().includes(quickSearch.toLowerCase()) ||
             p.cpf?.includes(quickSearch) ||
-            p.telefone_whatsapp?.includes(quickSearch)
+            p.whatsapp?.includes(quickSearch)
         )
         : [];
 
@@ -89,13 +89,12 @@ function ReceptionDashboard() {
         setAgEnviando(true);
         setAgErro(null);
         try {
-            const data_agendada = `${agForm.data}T${agForm.hora}:00`;
+            const consultation_date = `${agForm.data}T${agForm.hora}:00`;
             const nova = await apiCriarConsulta(token, {
-                paciente_id: selectedPatient.id,
-                dentista_id: agForm.dentista_id || null,
-                tipo_atendimento: agForm.tipo,
-                data_agendada,
-                procedimentos_descritos: agForm.motivo,
+                patient_id: selectedPatient.id,
+                specialist_id: agForm.dentista_id || null,
+                consultation_date,
+                reason_complaint: agForm.motivo,
             });
             setConsultas(prev => [nova, ...prev]);
             setAgSucesso(true);
@@ -108,7 +107,7 @@ function ReceptionDashboard() {
     }
 
     const hoje = new Date().toISOString().slice(0, 10);
-    const consultasHoje = consultas.filter(c => c.data_agendada?.startsWith(hoje));
+    const consultasHoje = consultas.filter(c => c.consultation_date?.startsWith(hoje));
 
     return (
         <>
@@ -149,7 +148,7 @@ function ReceptionDashboard() {
                                             type="text"
                                             placeholder="🔍 Digite Nome, CPF ou Telefone..."
                                             style={{ width: '100%' }}
-                                            value={selectedPatient ? selectedPatient.nome : searchName}
+                                            value={selectedPatient ? selectedPatient.name : searchName}
                                             onChange={e => { setSearchName(e.target.value); setSelectedPatient(null); }}
                                         />
                                         {filteredPatients.length > 0 && (
@@ -157,7 +156,7 @@ function ReceptionDashboard() {
                                                 {filteredPatients.map(p => (
                                                     <li key={p.id} onClick={() => { setSelectedPatient(p); setSearchName(""); }}
                                                         style={{ padding: '12px', borderRadius: '8px', cursor: 'pointer', borderBottom: '1px solid var(--LineColor)' }}>
-                                                        <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.nome}</p>
+                                                        <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.name}</p>
                                                         <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {formatCPF(p.cpf)}</span>
                                                     </li>
                                                 ))}
@@ -175,7 +174,7 @@ function ReceptionDashboard() {
                                                 onChange={e => setAgForm(p => ({ ...p, dentista_id: e.target.value }))}>
                                                 <option value="">Selecione...</option>
                                                 {especialistas.map(e => (
-                                                    <option key={e.id} value={e.id}>{e.nome}</option>
+                                                    <option key={e.id} value={e.id}>{e.name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -244,9 +243,9 @@ function ReceptionDashboard() {
                             {filteredQuick.length > 0 && (
                                 <ul style={{ position: 'absolute', top: '100%', left: 0, width: '100%', background: 'white', border: '1px solid var(--LineColor)', borderRadius: '12px', listStyle: 'none', padding: '0.5rem', margin: '4px 0 0 0', boxShadow: '0 10px 25px rgba(0,0,0,0.15)', zIndex: 10 }}>
                                     {filteredQuick.map(p => (
-                                        <li key={p.id} onClick={() => setQuickSearch(p.nome)}
+                                        <li key={p.id} onClick={() => setQuickSearch(p.name)}
                                             style={{ padding: '12px', borderRadius: '8px', cursor: 'pointer', borderBottom: '1px solid var(--LineColor)' }}>
-                                            <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.nome}</p>
+                                            <p style={{ fontWeight: 700, margin: 0, color: 'var(--PrimaryColorsTheme)' }}>{p.name}</p>
                                             <span style={{ fontSize: '12px', color: 'var(--TextColor75)' }}>CPF: {formatCPF(p.cpf)}</span>
                                         </li>
                                     ))}
@@ -277,8 +276,8 @@ function ReceptionDashboard() {
                                 <div className="table-body">
                                     {consultasHoje.map(c => (
                                         <div key={c.id} className="table-row" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr 1fr' }}>
-                                            <p style={{ fontWeight: 600 }}>{c.data_agendada?.slice(11, 16)}</p>
-                                            <p style={{ fontWeight: 500 }}>{c.paciente?.nome || "—"}</p>
+                                            <p style={{ fontWeight: 600 }}>{c.consultation_date?.slice(11, 16)}</p>
+                                            <p style={{ fontWeight: 500 }}>{c.patients?.name || "—"}</p>
                                             <p className="text75">{c.tipo_atendimento || "—"}</p>
                                             <p style={{ color: c.status === "Agendado" ? '#EAB308' : '#22C55E', fontWeight: 700 }}>{c.status}</p>
                                         </div>

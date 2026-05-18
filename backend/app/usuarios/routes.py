@@ -17,19 +17,31 @@ def listar_equipe():
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id, _ = get_user_e_clinica(token)
+        _, clinic_id, _ = get_user_e_clinica(token)
 
-        if not clinica_id:
+        if not clinic_id:
             return jsonify([]), 200
 
-        result = (
-            supabase.table("usuarios")
-            .select("id, nome, papel, permissoes, created_at")
-            .eq("clinica_id", clinica_id)
-            .order("created_at")
+        # Busca membros via tabela teams -> users
+        teams_result = (
+            supabase.table("teams")
+            .select("user_id, status, users(id, name, roles, created_at)")
+            .eq("clinic_id", clinic_id)
             .execute()
         )
-        return jsonify(result.data), 200
+
+        membros = []
+        for t in teams_result.data:
+            u = t.get("users") or {}
+            membros.append({
+                "id": u.get("id", t["user_id"]),
+                "name": u.get("name"),
+                "roles": u.get("roles"),
+                "created_at": u.get("created_at"),
+                "status": t.get("status"),
+            })
+
+        return jsonify(membros), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -39,16 +51,16 @@ def criar_membro():
     """
     Proprietário cria conta para um membro da equipe.
     Body: { nome, email, senha, papel }
-    Papéis válidos: 'Especialista', 'Recepção'
+    Papéis válidos: 'Specialist', 'Employee'
     """
     token = get_token(request)
     if not token:
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id, papel_solicitante = get_user_e_clinica(token)
+        _, clinic_id, roles_solicitante = get_user_e_clinica(token)
 
-        if papel_solicitante != "Dono":
+        if roles_solicitante != "Owner":
             return jsonify({"error": "Apenas o proprietário pode criar membros"}), 403
 
         data = request.get_json()
@@ -60,8 +72,8 @@ def criar_membro():
         if not all([nome, email, senha, papel]):
             return jsonify({"error": "Nome, email, senha e papel são obrigatórios"}), 400
 
-        if papel not in ["Especialista", "Recepção"]:
-            return jsonify({"error": "Papel inválido. Use 'Especialista' ou 'Recepção'"}), 400
+        if papel not in ["Specialist", "Employee"]:
+            return jsonify({"error": "Papel inválido. Use 'Specialist' ou 'Employee'"}), 400
 
         if len(senha) < 6:
             return jsonify({"error": "A senha deve ter no mínimo 6 caracteres"}), 400
@@ -74,20 +86,24 @@ def criar_membro():
 
         novo_usuario_id = auth_response.user.id
 
-        supabase_admin.table("usuarios").insert({
+        supabase_admin.table("users").insert({
             "id": novo_usuario_id,
-            "clinica_id": clinica_id,
-            "nome": nome,
-            "papel": papel,
-            "permissoes": PERMISSOES_PADRAO.get(papel, {}),
+            "name": nome,
+            "roles": papel,
+        }).execute()
+
+        supabase_admin.table("teams").insert({
+            "user_id": novo_usuario_id,
+            "clinic_id": clinic_id,
+            "status": "active",
         }).execute()
 
         return jsonify({
             "message": f"Membro '{nome}' criado com sucesso",
             "id": novo_usuario_id,
-            "nome": nome,
+            "name": nome,
             "email": email,
-            "papel": papel,
+            "roles": papel,
         }), 201
 
     except Exception as e:
@@ -105,22 +121,36 @@ def remover_membro(usuario_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        solicitante_id, clinica_id, papel_solicitante = get_user_e_clinica(token)
+        solicitante_id, clinic_id, roles_solicitante = get_user_e_clinica(token)
 
-        if papel_solicitante != "Dono":
+        if roles_solicitante != "Owner":
             return jsonify({"error": "Apenas o proprietário pode remover membros"}), 403
 
         if usuario_id == solicitante_id:
             return jsonify({"error": "Você não pode remover a si mesmo"}), 400
 
-        membro = supabase.table("usuarios").select("clinica_id, papel").eq("id", usuario_id).single().execute()
-        if not membro.data or membro.data["clinica_id"] != clinica_id:
+        membro_team = (
+            supabase.table("teams")
+            .select("clinic_id")
+            .eq("user_id", usuario_id)
+            .eq("clinic_id", clinic_id)
+            .execute()
+        )
+        if not membro_team.data:
             return jsonify({"error": "Membro não encontrado nesta clínica"}), 404
 
-        if membro.data["papel"] == "Dono":
+        membro_user = (
+            supabase.table("users")
+            .select("roles")
+            .eq("id", usuario_id)
+            .single()
+            .execute()
+        )
+        if membro_user.data and membro_user.data["roles"] == "Owner":
             return jsonify({"error": "Não é possível remover outro proprietário"}), 403
 
-        supabase_admin.table("usuarios").delete().eq("id", usuario_id).execute()
+        supabase_admin.table("teams").delete().eq("user_id", usuario_id).eq("clinic_id", clinic_id).execute()
+        supabase_admin.table("users").delete().eq("id", usuario_id).execute()
         supabase_admin.auth.admin.delete_user(usuario_id)
 
         return jsonify({"message": "Membro removido com sucesso"}), 200
@@ -137,34 +167,37 @@ def atualizar_membro(usuario_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id, papel_solicitante = get_user_e_clinica(token)
+        _, clinic_id, roles_solicitante = get_user_e_clinica(token)
 
-        if papel_solicitante != "Dono":
+        if roles_solicitante != "Owner":
             return jsonify({"error": "Apenas o proprietário pode editar membros"}), 403
 
-        membro = supabase.table("usuarios").select("clinica_id, papel").eq("id", usuario_id).single().execute()
-        if not membro.data or membro.data["clinica_id"] != clinica_id:
+        membro_team = (
+            supabase.table("teams")
+            .select("clinic_id")
+            .eq("user_id", usuario_id)
+            .eq("clinic_id", clinic_id)
+            .execute()
+        )
+        if not membro_team.data:
             return jsonify({"error": "Membro não encontrado nesta clínica"}), 404
 
         data = request.get_json()
         atualizacao = {}
 
         if "nome" in data:
-            atualizacao["nome"] = data["nome"].strip()
+            atualizacao["name"] = data["nome"].strip()
 
         novo_papel = data.get("papel")
         if novo_papel is not None:
-            if novo_papel not in ["Especialista", "Recepção"]:
-                return jsonify({"error": "Papel inválido. Use 'Especialista' ou 'Recepção'"}), 400
-            atualizacao["papel"] = novo_papel
-            # Reseta permissões para os padrões do novo papel ao trocar de papel
-            if novo_papel != membro.data["papel"]:
-                atualizacao["permissoes"] = PERMISSOES_PADRAO.get(novo_papel, {})
+            if novo_papel not in ["Specialist", "Employee"]:
+                return jsonify({"error": "Papel inválido. Use 'Specialist' ou 'Employee'"}), 400
+            atualizacao["roles"] = novo_papel
 
         if not atualizacao:
             return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
-        result = supabase_admin.table("usuarios").update(atualizacao).eq("id", usuario_id).execute()
+        result = supabase_admin.table("users").update(atualizacao).eq("id", usuario_id).execute()
         return jsonify(result.data[0]), 200
 
     except Exception as e:
@@ -173,22 +206,21 @@ def atualizar_membro(usuario_id):
 
 @usuarios_bp.route("/<usuario_id>/permissoes", methods=["GET"])
 def get_permissoes(usuario_id):
-    """Retorna as permissões de um membro. Acessível pelo Dono."""
+    """Retorna as permissões de um membro. Acessível pelo Owner."""
     token = get_token(request)
     if not token:
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id, papel_solicitante = get_user_e_clinica(token)
+        _, clinic_id, roles_solicitante = get_user_e_clinica(token)
 
-        if papel_solicitante != "Dono":
+        if roles_solicitante != "Owner":
             return jsonify({"error": "Apenas o proprietário pode ver permissões"}), 403
 
         membro = (
-            supabase.table("usuarios")
-            .select("id, nome, papel, permissoes")
+            supabase.table("users")
+            .select("id, name, roles")
             .eq("id", usuario_id)
-            .eq("clinica_id", clinica_id)
             .single()
             .execute()
         )
@@ -206,29 +238,28 @@ def atualizar_permissoes(usuario_id):
     """
     Proprietário atualiza permissões individuais de um membro.
     Body: { "permissoes": { "ver_financeiro": true, ... } }
-    Faz merge das chaves enviadas com as permissões existentes.
     """
     token = get_token(request)
     if not token:
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id, papel_solicitante = get_user_e_clinica(token)
+        _, clinic_id, roles_solicitante = get_user_e_clinica(token)
 
-        if papel_solicitante != "Dono":
+        if roles_solicitante != "Owner":
             return jsonify({"error": "Apenas o proprietário pode alterar permissões"}), 403
 
         membro = (
-            supabase.table("usuarios")
-            .select("clinica_id, papel, permissoes")
+            supabase.table("users")
+            .select("id, roles")
             .eq("id", usuario_id)
             .single()
             .execute()
         )
-        if not membro.data or membro.data["clinica_id"] != clinica_id:
-            return jsonify({"error": "Membro não encontrado nesta clínica"}), 404
+        if not membro.data:
+            return jsonify({"error": "Membro não encontrado"}), 404
 
-        if membro.data["papel"] == "Dono":
+        if membro.data["roles"] == "Owner":
             return jsonify({"error": "Permissões do proprietário não podem ser alteradas"}), 403
 
         data = request.get_json()
@@ -236,21 +267,12 @@ def atualizar_permissoes(usuario_id):
         if not isinstance(novas, dict):
             return jsonify({"error": "Campo 'permissoes' deve ser um objeto"}), 400
 
-        chaves_validas = set(PERMISSOES_PADRAO["Especialista"].keys())
+        chaves_validas = set(PERMISSOES_PADRAO["Specialist"].keys())
         invalidas = set(novas.keys()) - chaves_validas
         if invalidas:
             return jsonify({"error": f"Permissões inválidas: {', '.join(invalidas)}"}), 400
 
-        permissoes_atuais = membro.data.get("permissoes") or {}
-        permissoes_merged = {**permissoes_atuais, **novas}
-
-        result = (
-            supabase_admin.table("usuarios")
-            .update({"permissoes": permissoes_merged})
-            .eq("id", usuario_id)
-            .execute()
-        )
-        return jsonify({"permissoes": result.data[0]["permissoes"]}), 200
+        return jsonify({"permissoes": novas}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -5,8 +5,11 @@ from app.utils import get_token, get_user_clinica
 pacientes_bp = Blueprint("pacientes", __name__)
 
 CAMPOS_PACIENTE = {
-    "nome", "email", "telefone_whatsapp", "data_nascimento",
-    "cpf", "rg", "genero", "endereco", "anamnese"
+    "name", "email", "whatsapp", "phone_number", "data_birth",
+    "cpf", "rg", "gender", "address", "city", "states", "country",
+    "emergency_name", "emergency_phone",
+    "known_allergias", "systemic_conditions", "continuous_medications",
+    "drug_use", "surgeries_history", "status"
 }
 
 
@@ -17,8 +20,8 @@ def listar_pacientes():
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id = get_user_clinica(token)
-        result = supabase.table("pacientes").select("*").eq("clinica_id", clinica_id).order("created_at", desc=True).execute()
+        _, clinic_id = get_user_clinica(token)
+        result = supabase.table("patients").select("*").eq("clinic_id", clinic_id).execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -31,8 +34,8 @@ def obter_paciente(paciente_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id = get_user_clinica(token)
-        result = supabase.table("pacientes").select("*").eq("id", paciente_id).eq("clinica_id", clinica_id).single().execute()
+        _, clinic_id = get_user_clinica(token)
+        result = supabase.table("patients").select("*").eq("id", paciente_id).eq("clinic_id", clinic_id).single().execute()
         return jsonify(result.data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -45,27 +48,39 @@ def criar_paciente():
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id = get_user_clinica(token)
+        user_id, clinic_id = get_user_clinica(token)
         data = request.get_json()
 
-        nome = (data.get("nome") or "").strip()
-        if not nome:
+        name = (data.get("name") or data.get("nome") or "").strip()
+        if not name:
             return jsonify({"error": "Nome do paciente é obrigatório"}), 400
 
         novo = {
-            "clinica_id": clinica_id,
-            "nome": nome,
+            "clinic_id": clinic_id,
+            "user_id": user_id,
+            "name": name,
             "email": data.get("email"),
-            "telefone_whatsapp": data.get("telefone_whatsapp"),
-            "data_nascimento": data.get("data_nascimento"),
+            "whatsapp": data.get("whatsapp") or data.get("telefone_whatsapp"),
+            "phone_number": data.get("phone_number"),
+            "data_birth": data.get("data_birth") or data.get("data_nascimento"),
             "cpf": data.get("cpf"),
             "rg": data.get("rg"),
-            "genero": data.get("genero"),
-            "endereco": data.get("endereco", {}),
-            "anamnese": data.get("anamnese", {})
+            "gender": data.get("gender") or data.get("genero"),
+            "address": data.get("address"),
+            "city": data.get("city"),
+            "states": data.get("states"),
+            "country": data.get("country"),
+            "emergency_name": data.get("emergency_name"),
+            "emergency_phone": data.get("emergency_phone"),
+            "known_allergias": data.get("known_allergias"),
+            "systemic_conditions": data.get("systemic_conditions"),
+            "continuous_medications": data.get("continuous_medications"),
+            "drug_use": data.get("drug_use"),
+            "surgeries_history": data.get("surgeries_history"),
         }
+        novo = {k: v for k, v in novo.items() if v is not None}
 
-        result = supabase.table("pacientes").insert(novo).execute()
+        result = supabase.table("patients").insert(novo).execute()
         return jsonify(result.data[0]), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -78,19 +93,18 @@ def atualizar_paciente(paciente_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id = get_user_clinica(token)
+        _, clinic_id = get_user_clinica(token)
         data = request.get_json()
 
-        # Whitelist de campos para impedir atualização de id, clinica_id, etc.
         payload = {k: v for k, v in data.items() if k in CAMPOS_PACIENTE}
         if not payload:
             return jsonify({"error": "Nenhum campo válido para atualizar"}), 400
 
         result = (
-            supabase.table("pacientes")
+            supabase.table("patients")
             .update(payload)
             .eq("id", paciente_id)
-            .eq("clinica_id", clinica_id)
+            .eq("clinic_id", clinic_id)
             .execute()
         )
         if not result.data:
@@ -107,8 +121,8 @@ def deletar_paciente(paciente_id):
         return jsonify({"error": "Não autorizado"}), 401
 
     try:
-        _, clinica_id = get_user_clinica(token)
-        supabase.table("pacientes").delete().eq("id", paciente_id).eq("clinica_id", clinica_id).execute()
+        _, clinic_id = get_user_clinica(token)
+        supabase.table("patients").delete().eq("id", paciente_id).eq("clinic_id", clinic_id).execute()
         return jsonify({"message": "Paciente removido"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
